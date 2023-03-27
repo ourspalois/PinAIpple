@@ -1,0 +1,23 @@
+CAPI=2:
+name: "pinaipple:pinaipple_system"
+description : "PinAIpple system for Apollo Agilex SOM board"
+
+filesets:
+    files_rtl:
+	depend: 
+            - pinaipple:pinaipple_core
+   
+    files_quartus: 
+	filesets: 
+	    - rtl/fpga/top_apollo.sv
+	file_type: systemVerilogSource
+
+    files_constraints:
+	files:
+	   - data/pins_apollo.tcl
+	   - data/contraints_apollo.sdc
+
+    targets:
+	defaults:  
+
+ 

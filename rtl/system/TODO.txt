@@ -1,0 +1,11 @@
+TODO : 
+
+- finish .core file
+- ajouter le coeur ibex.
+- ajouter le reseau.
+- ajouter les periphériques.
+- ajouter la mémoire. 
+
+- ajouter les fichiers pour quartus (SDC et tcl)
+- SDC : contraintes design 
+- tcl : contraintes pins 
