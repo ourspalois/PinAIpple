@@ -1,0 +1,10 @@
+ 
+règles de code : 
+
+1. Toujours formatter son code. 
+
+2. les inputs finissent pas i, les output par o(exemple : uart_rx_i)
+
+ 
+
+
