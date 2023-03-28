@@ -14,10 +14,28 @@ filesets:
 
     files_constraints:
 	files:
-	   - data/pins_apollo.tcl
-	   - data/contraints_apollo.sdc
+	    - data/pins_apollo.tcl
+	    - data/contraints_apollo.sdc
 
     targets:
-	defaults:  
+	defaults: &default_target 
+	    filesets:
+		- files_rtl 
+	synth: 
+	    <<: * default_target
+	    default_tool: quartus
+	    filesets_append:
+		- files_quartus
+		- files_contraints
+	    toplevel: top_apollo
+	    tools:
+		quartus: 
+		    family : ? 
+		    device : ? 
+		    cable : ? 
+		    board_device_index : ? 
+	    parameters: 
+		??? 
+ 
 
  
