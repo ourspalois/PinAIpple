@@ -1,9 +1,9 @@
  
 règles de code : 
 
-1. Toujours formatter son code. 
+1. Toujours formatter son code. (verible pour le rtl)
 
-2. les inputs finissent pas i, les output par o(exemple : uart_rx_i)
+2. les inputs finissent pas i ou in, les output par o ou out(exemple : uart_rx_i)
 
  
 

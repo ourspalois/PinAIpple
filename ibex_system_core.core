@@ -1,15 +1,13 @@
 CAPI=2:
-    name: "pinaipple:pinaipple_core"
-    description: "PinAIpple core for Apollo Agilex SOM board" 
-
-    filesets : 
-	files_rtl_core : 
-	   depend: 
-		- lowrisc:ibex:ibex_top
-	   files: 
-		- rtl/system/pinaipple_system.sv
-
-    targets:
-	default:
-	   filesets:
-		- files_rtl_core
+name: "integnano:pinaipple:pinaipple_core"
+description: "PinAIpple system for Apollo Agilex SOM board"
+filesets:
+  rtl_core_files:
+    depend:
+      - lowrisc:ibex:ibex_top
+    files:
+      - rtl/system/pinaipple_system.sv
+targets:
+  default:
+    filesets:
+      - rtl_core_files

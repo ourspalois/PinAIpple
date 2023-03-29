@@ -1,41 +1,54 @@
 CAPI=2:
-name: "pinaipple:pinaipple_system"
+name: "integnano:pinaipple:pinaipple_system"
 description : "PinAIpple system for Apollo Agilex SOM board"
-
 filesets:
-    files_rtl:
-	depend: 
-            - pinaipple:pinaipple_core
-   
-    files_quartus: 
-	filesets: 
-	    - rtl/fpga/top_apollo.sv
-	file_type: systemVerilogSource
+  rtl_files:
+    depend: 
+      - pinaipple:pinaipple_core
+  files_quartus: 
+    files: 
+      - rtl/fpga/top_apollo.sv
+    file_type: systemVerilogSource
 
-    files_constraints:
-	files:
-	    - data/pins_apollo.tcl
-	    - data/contraints_apollo.sdc
+  files_constraints:
+    files:
+      - data/pins_apollo.tcl
+      - data/contraints_apollo.sdc
+  
+  files_verilator:
+    depend:
+      - lowrisc:ibex:sim_shared
+      - lowrisc:dv_verilator:memutil_verilator
+      - lowrisc:dv_verilator:simutil_verilator
+      - lowrisc:dv_verilator:ibex_pcounts
+    files: ## add the testbench for verilator
+      -
 
-    targets:
-	defaults: &default_target 
-	    filesets:
-		- files_rtl 
-	synth: 
-	    <<: * default_target
-	    default_tool: quartus
-	    filesets_append:
-		- files_quartus
-		- files_contraints
-	    toplevel: top_apollo
-	    tools:
-		quartus: 
-		    family : ? 
-		    device : ? 
-		    cable : ? 
-		    board_device_index : ? 
-	    parameters: 
-		??? 
+targets:
+  defaults: &default_target 
+    filesets:
+      - rtl_files 
+  synth: 
+    <<: *default_target
+    default_tool: quartus
+    filesets_append:
+      - files_quartus
+      - files_contraints
+    toplevel: top_apollo
+    tools:
+      quartus: 
+        family : Agilex 
+        device : AGFB014R24B2E2V
+        cable : USB-Blaster
+        board_device_index :  2 #no idea what this is
+      parameters: 
+  sim:
+    <<: * default_target
+    default_tool: verilator
+    
+
+
+
  
 
  
