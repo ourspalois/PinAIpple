@@ -7,6 +7,10 @@ filesets:
       - lowrisc:ibex:ibex_top
     files:
       - rtl/system/pinaipple_system.sv
+      - rtl/system/gpio.sv
+      - rtl/system/uart.sv
+    file_type: systemVerilogSource
+
 targets:
   default:
     filesets:

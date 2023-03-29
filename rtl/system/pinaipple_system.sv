@@ -1,3 +1,5 @@
+import tcdm_interconnect_pkg::*;
+
 module pinaipple_system #(
     parameter int GPIWidth = 8,
     parameter int GPOWidth = 8,
