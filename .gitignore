@@ -36,6 +36,11 @@
 ehthumbs.db
 Thumbs.db
 
+############
+# my build #
+############
+build/
+
 # my junk # 
 ###########
 *.ignore

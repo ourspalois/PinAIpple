@@ -1,6 +1,6 @@
 CAPI=2:
 name: "integnano:pinaipple:pinaipple_core"
-description: "PinAIpple system for Apollo Agilex SOM board"
+description: "PinAIpple system"
 filesets:
   rtl_core_files:
     depend:
