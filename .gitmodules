@@ -1,0 +1,6 @@
+[submodule "vendor/cluster_interconnect"]
+	path = vendor/cluster_interconnect
+	url = https://github.com/ourspalois/cluster_interconnect
+[submodule "vendor/common_cells"]
+	path = vendor/common_cells
+	url = https://github.com/ourspalois/common_cells
