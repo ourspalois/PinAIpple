@@ -4,3 +4,6 @@
 [submodule "vendor/common_cells"]
 	path = vendor/common_cells
 	url = https://github.com/ourspalois/common_cells
+[submodule "vendor/ibex"]
+	path = vendor/ibex
+	url = https://github.com/ourspalois/ibex
