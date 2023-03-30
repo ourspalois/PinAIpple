@@ -1,0 +1,30 @@
+CAPI=2:
+
+# Copyright INTEGNANO UNiversity of Paris-Saclay, 2023 
+# written by: ourspalois 
+
+name : "integnano:bayesian_stoch_log:top_machine" 
+description: "Top description of INTEGNANO's stochastic log inference matrix" 
+filesets:
+  rtl_files : 
+    - rtl/additions.sv
+    - rtl/Bayesian_stoch_log.sv
+    - rtl/bot_logic.sv
+    - rtl/complex_decoder_left_priors.sv
+    - rtl/complex_decoder_right.sv
+    - rtl/complex_decoder_top.sv
+    - rtl/decoder_bot.sv
+    - rtl/decoder_left.sv
+    - rtl/decoder_right.sv
+    - rtl/decoder_top.sv
+    - rtl/Gupta.sv
+    - rtl/ LFSR_1bL.sv
+    - rtl/likelihood.sv
+    - rtl/register_out.sv
+    - rtl/selecting.sv
+    file_type: systemVerilogSource
+
+targets:
+  default:
+    filesets:
+      - rtl_files

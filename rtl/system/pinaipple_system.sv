@@ -1,4 +1,4 @@
-import tcdm_interconnect_pkg::*;
+import tcdm_interconnect_pkg::topo_e;
 
 module pinaipple_system #(
     parameter int GPIWidth = 8,
@@ -26,7 +26,7 @@ module pinaipple_system #(
 
   localparam logic [31:0] UARTSIZE = 4 * 1024;  //  4 KiB
   localparam logic [31:0] UARTSTART = 32'h80001000;
-  localparam logic [31:0] UARTMASK = ~(UART_SIZE - 1);
+  localparam logic [31:0] UARTMASK = ~(UARTSIZE - 1);
 
   localparam logic [31:0] TIMERSIZE = 4 * 1024;  //  4 KiB
   localparam logic [31:0] TIMERSTART = 32'h80002000;
@@ -57,7 +57,7 @@ module pinaipple_system #(
   logic core_instr_rvalid;
 
   logic mem_instr_req;
-  logic [31:0] nnmem_instr_rdata;
+  logic [31:0] mem_instr_rdata;
 
   //interface fecth to mem (bypass the network)
   assign mem_instr_req = core_instr_req;
@@ -85,6 +85,9 @@ module pinaipple_system #(
   logic [NbrHosts-1:0]                       Host_resp_valid;
   logic [NbrHosts-1:0]                       Host_resp_ready;
   logic [NbrHosts-1:0][      DATA_WIDTH-1:0] Host_resp_data;
+  // assign value host side TODO : change
+  assign Host_resp_ready = '1 ; // always ready for response
+
   //request network Devices
   localparam int unsigned NbrHostsLog2 = (NbrHosts == 1) ? 1 : $clog2(NbrHosts);
   logic [NbrDevices-1:0] Device_req_valid;  // req net-> device valid
@@ -99,6 +102,8 @@ module pinaipple_system #(
   logic [NbrDevices-1:0] Device_resp_ready;  // ready for response
   logic [NbrDevices-1:0] [NbrHostsLog2-1:0] Device_resp_addr_host ; // address of the host for resp
   logic [NbrDevices-1:0][DATA_WIDTH-1:0] Device_resp_data;  // response data
+  // assign TODO : change
+  assign Device_resp_addr_host = '0; // always CPU
 
   variable_latency_interconnect #(
       .NumIn(NbrHosts),
@@ -118,7 +123,7 @@ module pinaipple_system #(
       .req_wen_i     (Host_we),          //Write enable
       .req_wdata_i   (Host_wdata),       //Write Data
       .req_be_i      (Host_be),          //Byte enable
-      .resp_valid_o  (Host_req_valid),   //Response valid
+      .resp_valid_o  (Host_resp_valid),   //Response valid
       .resp_ready_i  (Host_resp_ready),  //Response ready
       .resp_rdata_o  (Host_resp_data),   //Data response
 
@@ -169,7 +174,7 @@ module pinaipple_system #(
 
       .data_req_o       (Host_req_valid[CoreD]),
       .data_gnt_i       (),
-      .data_rvalid_i    (Host_req_valid[CoreD]),
+      .data_rvalid_i    (Host_resp_valid[CoreD]),
       .data_we_o        (Host_we[CoreD]),
       .data_be_o        (Host_be[CoreD]),
       .data_addr_o      (Host_tgt_addr[CoreD]),
@@ -190,6 +195,7 @@ module pinaipple_system #(
       .scramble_nonce_i    ('0),
       .scramble_req_o      (),
 
+      .debug_req_i        (),
       .crash_dump_o       (),
       .double_fault_seen_o(),
 
@@ -210,7 +216,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Ram] && !Device_wen[Ram]) begin
-      Device_host_addr[Ram] <= Device_host_addr[Ram];
+      Device_resp_addr_host[Ram] <= Device_host_addr[Ram];
     end
   end
   // not waiting for response ready from the network (should but... lazy)
@@ -225,7 +231,7 @@ module pinaipple_system #(
       .a_req_i   (Device_req_valid[Ram]),
       .a_we_i    (Device_wen[Ram]),
       .a_be_i    (Device_ben[Ram]),
-      .a_addr_i  (Device_tgt_addr[Ram]),
+      .a_addr_i  ({20'b0, Device_tgt_addr[Ram]}),
       .a_wdata_i (Device_wdata[Ram]),
       .a_rvalid_o(Device_resp_valid[Ram]),
       .a_rdata_o (Device_resp_data[Ram]),
@@ -245,7 +251,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Gpio] && !Device_wen[Gpio]) begin
-      Device_host_addr[Gpio] <= Device_host_addr[Gpio];
+      Device_resp_addr_host[Gpio] <= Device_host_addr[Gpio];
     end
   end
 
@@ -257,7 +263,7 @@ module pinaipple_system #(
       .rst_ni(rst_sys_in),
 
       .device_req_i   (Device_req_valid[Gpio]),
-      .device_addr_i  (Device_tgt_addr[Gpio]),
+      .device_addr_i  ({20'b0, Device_tgt_addr[Gpio]}),
       .device_we_i    (Device_wen[Gpio]),
       .device_be_i    (Device_ben[Gpio]),
       .device_wdata_i (Device_wdata[Gpio]),
@@ -274,7 +280,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Uart]) begin
-      Device_host_addr[Uart] <= Device_host_addr[Uart];
+      Device_resp_addr_host[Uart] <= Device_host_addr[Uart];
     end
   end
 
@@ -285,7 +291,7 @@ module pinaipple_system #(
       .rst_ni(rst_sys_in),
 
       .device_req_i   (Device_req_valid[Uart]),
-      .device_addr_i  (Device_tgt_addr[Uart]),
+      .device_addr_i  ({20'b0, Device_tgt_addr[Uart]}),
       .device_we_i    (Device_wen[Uart]),
       .device_be_i    (Device_ben[Uart]),
       .device_wdata_i (Device_wdata[Uart]),
@@ -303,7 +309,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Timer]) begin
-      Device_host_addr[Timer] <= Device_host_addr[Timer];
+      Device_resp_addr_host[Timer] <= Device_host_addr[Timer];
     end
   end
 
@@ -317,7 +323,7 @@ module pinaipple_system #(
       .timer_req_i   (Device_req_valid[Timer]),
       .timer_we_i    (Device_wen[Timer]),
       .timer_be_i    (Device_ben[Timer]),
-      .timer_addr_i  (Device_tgt_addr[Timer]),
+      .timer_addr_i  ({20'b0, Device_tgt_addr[Timer]}),
       .timer_wdata_i (Device_wdata[Timer]),
       .timer_rvalid_o(Device_resp_valid[Timer]),
       .timer_rdata_o (Device_resp_data[Timer]),
