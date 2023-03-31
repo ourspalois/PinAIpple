@@ -86,7 +86,7 @@ module pinaipple_system #(
   logic [NbrHosts-1:0]                       Host_resp_ready;
   logic [NbrHosts-1:0][      DATA_WIDTH-1:0] Host_resp_data;
   // assign value host side TODO : change
-  assign Host_resp_ready = '1 ; // always ready for response
+  assign Host_resp_ready = '1;  // always ready for response
 
   //request network Devices
   localparam int unsigned NbrHostsLog2 = (NbrHosts == 1) ? 1 : $clog2(NbrHosts);
@@ -103,7 +103,7 @@ module pinaipple_system #(
   logic [NbrDevices-1:0] [NbrHostsLog2-1:0] Device_resp_addr_host ; // address of the host for resp
   logic [NbrDevices-1:0][DATA_WIDTH-1:0] Device_resp_data;  // response data
   // assign TODO : change
-  assign Device_resp_addr_host = '0; // always CPU
+  assign Device_resp_addr_host = '0;  // always CPU
 
   variable_latency_interconnect #(
       .NumIn(NbrHosts),
@@ -123,7 +123,7 @@ module pinaipple_system #(
       .req_wen_i     (Host_we),          //Write enable
       .req_wdata_i   (Host_wdata),       //Write Data
       .req_be_i      (Host_be),          //Byte enable
-      .resp_valid_o  (Host_resp_valid),   //Response valid
+      .resp_valid_o  (Host_resp_valid),  //Response valid
       .resp_ready_i  (Host_resp_ready),  //Response ready
       .resp_rdata_o  (Host_resp_data),   //Data response
 
@@ -182,7 +182,7 @@ module pinaipple_system #(
       .data_wdata_intg_o(),
       .data_rdata_i     (Host_resp_data),
       .data_rdata_intg_i('0),
-      .data_err_i       (1'b0),                   // no erros by default (super safe dont worry)
+      .data_err_i       (1'b0),                    // no erros by default (super safe dont worry)
 
       .irq_software_i(1'b0),
       .irq_timer_i   (timer_irq),

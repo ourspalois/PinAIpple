@@ -5,6 +5,7 @@ filesets:
   rtl_files:
     depend: 
       - integnano:pinaipple:pinaipple_core
+      - pulp-platform.org::common_cells:1.28.0
   files_quartus: 
     files: 
       - rtl/fpga/top_apollo.sv
@@ -66,15 +67,15 @@ targets:
         verilator_options:
           # Disabling tracing reduces compile times but doesn't have a
           # huge influence on runtime performance.
-          - '--trace'
-          - '--trace-fst' # this requires -DVM_TRACE_FMT_FST in CFLAGS below!
-          - '--trace-structs'
-          - '--trace-params'
-          - '--trace-max-array 1024'
+          # - '--trace'
+          # - '--trace-fst' # this requires -DVM_TRACE_FMT_FST in CFLAGS below!
+          # - '--trace-structs'
+          # - '--trace-params'
+          # - '--trace-max-array 1024'
           - '-CFLAGS "-std=c++11 -Wall -DVM_TRACE_FMT_FST -DTOPLEVEL_NAME=pinaipple_system"'
           - '-LDFLAGS "-pthread -lutil -lelf"'
-          - "-Wall"
-          - "-Wwarn-IMPERFECTSCH"
+          #- "-Wall"
+          #- "-Wwarn-IMPERFECTSCH"
           # RAM primitives wider than 64bit (required for ECC) fail to build in
           # Verilator without increasing the unroll count (see Verilator#1266)
           - "--unroll-count 72"
