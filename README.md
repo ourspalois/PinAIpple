@@ -1,4 +1,4 @@
-# PINAIPPLE SYSTEM 
+# PINAIPPLE 🍍 SYSTEM 
 
 ## install 
 this projects depends on the ibex system, and it's fork of fusesoc. 
