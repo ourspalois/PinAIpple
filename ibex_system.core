@@ -22,7 +22,10 @@ filesets:
       - lowrisc:dv_verilator:memutil_verilator
       - lowrisc:dv_verilator:simutil_verilator
       - lowrisc:dv_verilator:ibex_pcounts
-    # files: ## add the testbench for verilator
+    files: 
+      - sim/verilator/Pinaipple_system.cc: { file_type: cppSource}
+      - sim/verilator/Pinaipple_system.h: { file_type: cppSource, is_include_file: true}
+      - sim/verilator/Pinaipple_system_main.cc: {file_type: cppSource}
 
 parameters:
   SRAMInitFile:

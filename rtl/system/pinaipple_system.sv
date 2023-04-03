@@ -331,7 +331,14 @@ module pinaipple_system #(
       .timer_intr_o  (timer_irq)
   );
 
-  //
+  `ifdef VERILATOR
+    export "DPI-C" function mhpmcounter_get;
+
+    function automatic longint unsigned mhpmcounter_get(int index);
+      return u_top.u_ibex_core.cs_registers_i.mhpmcounter[index];
+    endfunction
+  `endif
+
 
 
 endmodule
