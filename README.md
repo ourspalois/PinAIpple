@@ -1,4 +1,4 @@
-# PINAIPPLE 🍍 SYSTEM 
+#  🍍 PINAIPPLE  SYSTEM 🍍
 
 ## install 
 this projects depends on the ibex system, and it's fork of fusesoc. 
@@ -16,9 +16,10 @@ as a way to test the install of fusesoc run this cmd :
 
 You should see a few cores produced by our team. 
 
-## run verilator 
+## build simulator using Verilator
 You should install verilator to run this cmd
-run the cmd : 
+run the cmd  
 
 ``` fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system ```
 
+## Run the simulator 

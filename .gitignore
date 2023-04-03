@@ -40,6 +40,8 @@ Thumbs.db
 # my build #
 ############
 build/
+sw/build/
+.venv/
 
 # my junk # 
 ###########
