@@ -42,7 +42,6 @@ Thumbs.db
 build/
 sw/build/
 .venv/
-.vscode/
 
 # my junk # 
 ###########
