@@ -1,21 +1,25 @@
-#include "gpio.h"
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
 
-void set_outputs(gpio_t gpio, uint32_t outputs){
-    DEV_WRITE(gpio, outputs);
-}
+.section .text
 
-uint32_t read_gpio(gpio_t gpio){
-    return DEV_READ(gpio);
-}
+blank_loop:
+  wfi
+  j blank_loop
 
-void set_output_bit(gpio_t gpio, uint32_t bit_index, uint32_t value){
-    uint32_t outputs = read_gpio(gpio);
-    outputs &= ~(1 << bit_index); // clear bit 
-    outputs |= (value << bit_index); // set bit 
-    set_outputs(gpio, outputs);
-}
+/* =================================================== [ exceptions ] === */
+/* This section has to be down here, since we have to disable rvc for it  */
 
-void get_output_bit(gpio_t gpio, uint32_t bit_index){
-    uint32_t outputs = read_gpio(gpio);
-    return (outputs >> bit_index) & 1;
-}
+  .section .vectors, "ax"
+  .option norvc;
+
+  // All unimplemented interrupts/exceptions go to the default_exc_handler.
+  .org 0x00
+  .rept 32
+  jal x0, blank_loop
+  .endr
+
+  // reset vector
+  .org 0x80
+  jal x0, blank_loop

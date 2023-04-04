@@ -23,3 +23,7 @@ run the cmd
 ``` fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system ```
 
 ## Run the simulator 
+
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system [-t] --meminit=ram,<your binary>,<type of your file> ```
+
+the type of your bin file can be found using the cmd : ``` file <the file> ``` it should be an elf or vmem file.
