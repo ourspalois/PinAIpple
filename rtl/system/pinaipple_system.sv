@@ -5,6 +5,7 @@ module pinaipple_system #(
     parameter int GPOWidth = 8,
     parameter int CLK_FREQ = 50_000_000,
     parameter int DATA_WIDTH = 32,
+    parameter int ADDR_DEV_WIDTH = 20,
     parameter SRAMInitFile = ""
 ) (
     input logic clk_sys_in,
@@ -32,16 +33,22 @@ module pinaipple_system #(
   localparam logic [31:0] TIMERSTART = 32'h80002000;
   localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
+  parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
+  parameter logic [31:0] SIMCTRLSTART = 32'h20000;
+  parameter logic [31:0] SIMCTRLMASK  = ~(SIMCTRLSIZE-1);
+
   typedef enum int {CoreD} bus_host_e;
 
   typedef enum int {
     Ram,
     Gpio,
     Uart,
-    Timer
+    Timer,
+    SimCtrl, 
+    error
   } bus_device_e;
 
-  localparam int NbrDevices = 4;
+  localparam int NbrDevices = 5;
   localparam int NbrHosts = 1;
 
   //interrupts
@@ -93,7 +100,7 @@ module pinaipple_system #(
   logic [NbrDevices-1:0] Device_req_valid;  // req net-> device valid
   logic [NbrDevices-1:0] Device_req_ready;  // device ready
   logic [NbrDevices-1:0] [NbrHostsLog2-1:0] Device_host_addr ; //address of the host of the request
-  logic [NbrDevices-1:0][11:0] Device_tgt_addr;  // 4Ko on each target => not enough with accel
+  logic [NbrDevices-1:0][ADDR_DEV_WIDTH-1:0] Device_tgt_addr;  // 4Ko on each target => not enough with accel
   logic [NbrDevices-1:0] Device_wen;  // write enable from host
   logic [NbrDevices-1:0][DATA_WIDTH-1:0] Device_wdata;  // data to write from host
   logic [NbrDevices-1:0][DATA_WIDTH/8 -1 : 0] Device_ben;  // byte enable from host
@@ -105,11 +112,35 @@ module pinaipple_system #(
   // assign TODO : change
   assign Device_resp_addr_host = '0;  // always CPU
 
+  logic [DATA_WIDTH-1:0] ibex_data_addr_out ;
+  bus_device_e ibex_tgt_addr_out ; 
+
+  always_comb begin : select_tgt
+    // switch staement to select the target   
+    if(ibex_data_addr_out <= (SIMCTRLSTART + SIMCTRLSIZE)) begin // true if in adress space
+      ibex_tgt_addr_out = SimCtrl;
+    end else if(ibex_data_addr_out <= (MEMSTART + MEMSIZE)) begin
+      ibex_tgt_addr_out = Ram;  
+    end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
+      ibex_tgt_addr_out = Gpio;
+    end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
+      ibex_tgt_addr_out = Uart;
+    end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
+      ibex_tgt_addr_out = Timer;
+    end else begin
+      ibex_tgt_addr_out = error;
+      //$display("ERROR : no target found for adress %h", ibex_data_addr_out);
+    end
+
+    end
+
+  assign Host_tgt_addr[0] = {ibex_data_addr_out[DATA_WIDTH - 6:0], ibex_tgt_addr_out[2:0], 2'b0} ;
+
   variable_latency_interconnect #(
       .NumIn(NbrHosts),
       .NumOut(NbrDevices),
       .AddrWidth(DATA_WIDTH),
-      .AddrMemWidth(12),
+      .AddrMemWidth(ADDR_DEV_WIDTH),
       .Topology(tcdm_interconnect_pkg::LIC)
   ) L1_interconnect (
 
@@ -119,7 +150,7 @@ module pinaipple_system #(
       //HostSide
       .req_valid_i   (Host_req_valid),   // Request valid
       .req_ready_o   (Host_req_ready),   // 1 if network ready for request
-      .req_tgt_addr_i(Host_tgt_addr),    //Target Adress
+      .req_tgt_addr_i(Host_tgt_addr),    //Target Adress = adress in memory & tgt & offwidth   
       .req_wen_i     (Host_we),          //Write enable
       .req_wdata_i   (Host_wdata),       //Write Data
       .req_be_i      (Host_be),          //Byte enable
@@ -173,14 +204,14 @@ module pinaipple_system #(
       .instr_err_i       ('0),                 // don't know what this does
 
       .data_req_o       (Host_req_valid[CoreD]),
-      .data_gnt_i       (),
+      .data_gnt_i       (Host_req_valid[CoreD]), // need to do real aswering of the nework 
       .data_rvalid_i    (Host_resp_valid[CoreD]),
       .data_we_o        (Host_we[CoreD]),
       .data_be_o        (Host_be[CoreD]),
-      .data_addr_o      (Host_tgt_addr[CoreD]),
+      .data_addr_o      (ibex_data_addr_out),
       .data_wdata_o     (Host_wdata[CoreD]),
       .data_wdata_intg_o(),
-      .data_rdata_i     (Host_resp_data),
+      .data_rdata_i     (Host_resp_data[CoreD]),
       .data_rdata_intg_i('0),
       .data_err_i       (1'b0),                    // no erros by default (super safe dont worry)
 
@@ -231,7 +262,7 @@ module pinaipple_system #(
       .a_req_i   (Device_req_valid[Ram]),
       .a_we_i    (Device_wen[Ram]),
       .a_be_i    (Device_ben[Ram]),
-      .a_addr_i  ({20'b0, Device_tgt_addr[Ram]}),
+      .a_addr_i  ({12'b0, Device_tgt_addr[Ram]}),
       .a_wdata_i (Device_wdata[Ram]),
       .a_rvalid_o(Device_resp_valid[Ram]),
       .a_rdata_o (Device_resp_data[Ram]),
@@ -263,7 +294,7 @@ module pinaipple_system #(
       .rst_ni(rst_sys_in),
 
       .device_req_i   (Device_req_valid[Gpio]),
-      .device_addr_i  ({20'b0, Device_tgt_addr[Gpio]}),
+      .device_addr_i  ({12'b0,Device_tgt_addr[Gpio]}),
       .device_we_i    (Device_wen[Gpio]),
       .device_be_i    (Device_ben[Gpio]),
       .device_wdata_i (Device_wdata[Gpio]),
@@ -291,7 +322,7 @@ module pinaipple_system #(
       .rst_ni(rst_sys_in),
 
       .device_req_i   (Device_req_valid[Uart]),
-      .device_addr_i  ({20'b0, Device_tgt_addr[Uart]}),
+      .device_addr_i  ({12'b0,Device_tgt_addr[Uart]}),
       .device_we_i    (Device_wen[Uart]),
       .device_be_i    (Device_ben[Uart]),
       .device_wdata_i (Device_wdata[Uart]),
@@ -323,13 +354,31 @@ module pinaipple_system #(
       .timer_req_i   (Device_req_valid[Timer]),
       .timer_we_i    (Device_wen[Timer]),
       .timer_be_i    (Device_ben[Timer]),
-      .timer_addr_i  ({20'b0, Device_tgt_addr[Timer]}),
+      .timer_addr_i  ({12'b0,Device_tgt_addr[Timer]}),
       .timer_wdata_i (Device_wdata[Timer]),
       .timer_rvalid_o(Device_resp_valid[Timer]),
       .timer_rdata_o (Device_resp_data[Timer]),
       .timer_err_o   (),
       .timer_intr_o  (timer_irq)
   );
+
+  `ifdef VERILATOR
+    simulator_ctrl #(
+      .LogName("pinaipple_system.log"),
+      .FlushOnChar(0)
+    ) u_simulator_ctrl (
+      .clk_i (clk_sys_in),
+      .rst_ni (rst_sys_in),
+
+      .req_i     (Device_req_valid[SimCtrl]),
+      .we_i      (Device_wen[SimCtrl]),
+      .be_i      (Device_ben[SimCtrl]),
+      .addr_i    ({12'b0,Device_tgt_addr[SimCtrl]}),
+      .wdata_i   (Device_wdata[SimCtrl]),
+      .rvalid_o  (Device_resp_valid[SimCtrl]),
+      .rdata_o   (Device_resp_data[SimCtrl])
+    ) ;
+  `endif 
 
   `ifdef VERILATOR
     export "DPI-C" function mhpmcounter_get;

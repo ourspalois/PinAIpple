@@ -42,9 +42,12 @@ Thumbs.db
 build/
 sw/build/
 .venv/
+.vscode/
 
 # my junk # 
 ###########
 *.ignore
 *.swp
+pinaipple_system_pcount.csv
+*.fst
 

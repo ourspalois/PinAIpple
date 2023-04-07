@@ -70,11 +70,11 @@ targets:
         verilator_options:
           # Disabling tracing reduces compile times but doesn't have a
           # huge influence on runtime performance.
-          # - '--trace'
-          # - '--trace-fst' # this requires -DVM_TRACE_FMT_FST in CFLAGS below!
-          # - '--trace-structs'
-          # - '--trace-params'
-          # - '--trace-max-array 1024'
+          - '--trace'
+          - '--trace-fst' # this requires -DVM_TRACE_FMT_FST in CFLAGS below!
+          - '--trace-structs'
+          - '--trace-params'
+          - '--trace-max-array 1024'
           - '-CFLAGS "-std=c++11 -Wall -DVM_TRACE_FMT_FST -DTOPLEVEL_NAME=pinaipple_system"'
           - '-LDFLAGS "-pthread -lutil -lelf"'
           #- "-Wall"

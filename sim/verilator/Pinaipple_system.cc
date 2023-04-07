@@ -15,9 +15,6 @@ PinaippleSystem::PinaippleSystem(const char *ram_hier_path, int ram_size)
 
 int PinaippleSystem::Main(int argc, char **argv)
 {
-    std::cout << "Pinaipple System" << std::endl
-              << "================" << std::endl
-              << std::endl;
     bool exit_app;
     int ret_code = Setup(argc, argv, exit_app);
 

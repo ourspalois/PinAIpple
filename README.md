@@ -27,3 +27,7 @@ run the cmd
 ``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system [-t] --meminit=ram,<your binary>,<type of your file> ```
 
 the type of your bin file can be found using the cmd : ``` file <the file> ``` it should be an elf or vmem file.
+
+for example to build the hello_world demo run : 
+
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/hello_world/demo,elf ```
