@@ -17,22 +17,25 @@ module Bayesian_stoch_log #(
     Nword_used = 3
 )  //Narray: 1D array adress size, Nword: storage adr size
 (
-    input logic clk,
-    input logic CBL,
-    CBLEN,
-    CSL,
-    CWL,  // Control signals for forming programming and reading
-    input logic inference,
-    load_seed,
-    read_1,
-    read_8,
-    load_mem,
-    read_out,
-    input logic [N-1:0] adr_full_col,		// Narray bits to adress the array colomns, Nword bits to adress memories clomns
-    input logic [N-1:0] adr_full_row,		// Narray bits to adress the array rows, Nword bits to adress memories rows
-    input logic stoch_log,                          // choice between stochastic or logarithmic computing 0 : stoch / 1 : log
-    input logic [2**Nword_used-1:0] seeds,  // seeds for LFSR
-    output logic [2**Narray-1:0] bit_out  // data out
+  // Control signals for forming programming and reading
+  input logic clk,
+  input logic CBL,
+  input logic CBLEN,
+  input logic CSL,
+  input logic CWL,  
+
+  input logic inference,
+  input logic load_seed,
+  input logic read_1,
+  input logic read_8,
+  input logic load_mem,
+  input logic read_out,
+
+  input logic [N-1:0] adr_full_col,		// Narray bits to adress the array colomns, Nword bits to adress memories columns
+  input logic [N-1:0] adr_full_row,		// Narray bits to adress the array rows, Nword bits to adress memories rows
+  input logic stoch_log,                          // choice between stochastic or logarithmic computing 0 : stoch / 1 : log
+  input logic [2**Nword_used-1:0] seeds,  // seeds for LFSR
+  output logic [2**Narray-1:0] bit_out  // data out
 );
 
   logic [2**Narray-1:0] CBL_in;  // for colomns of likelihood array
