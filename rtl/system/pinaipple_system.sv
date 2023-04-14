@@ -33,6 +33,10 @@ module pinaipple_system #(
   localparam logic [31:0] TIMERSTART = 32'h80002000;
   localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
+  localparam logic [31:0] FRAISESIZE = 8 * 1024 + 1024 ; //array + registers for control and results
+  localparam logic [31:0] FRAISESTART = 32'h90000000;
+  localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
+
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
   parameter logic [31:0] SIMCTRLSTART = 32'h20000;
   parameter logic [31:0] SIMCTRLMASK  = ~(SIMCTRLSIZE-1);
@@ -44,11 +48,12 @@ module pinaipple_system #(
     Gpio,
     Uart,
     Timer,
+    Fraise,
     SimCtrl, 
     error
   } bus_device_e;
 
-  localparam int NbrDevices = 5;
+  localparam int NbrDevices = 6;
   localparam int NbrHosts = 1;
 
   //interrupts
@@ -127,9 +132,13 @@ module pinaipple_system #(
       ibex_tgt_addr_out = Uart;
     end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
       ibex_tgt_addr_out = Timer;
+    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
+      ibex_tgt_addr_out = Fraise;    
     end else begin
       ibex_tgt_addr_out = error;
-      //$display("ERROR : no target found for adress %h", ibex_data_addr_out);
+      `ifdef VERILATOR 
+        $display("ERROR : no target found for adress %h", ibex_data_addr_out);
+      `endif
     end
 
     end
@@ -361,6 +370,35 @@ module pinaipple_system #(
       .timer_err_o   (),
       .timer_intr_o  (timer_irq)
   );
+
+  assign Device_req_ready[Fraise] = 1'b1;
+
+
+  fraise_top #(
+    .DataWidth(32)
+    .AddressWidth(32),
+    .MatrixSize(4),
+    .ArraySize(64),
+    .Nword_used(3)
+  ) (
+    .clk_i(clk_sys_in),
+    .reset_n(rst_sys_in),
+
+    .req_valid_i(Device_req_valid[Fraise]),
+    .ready_o(Device_req_ready[Fraise]), 
+    .req_host_addr_i(Device_host_addr[Fraise]),
+    .req_addri_i({12'b0,Device_tgt_addr[Fraise]}),
+
+    .req_wen_i(Device_wen[Fraise]),
+    .req_wdata_i(Device_wdata[Fraise]),
+    .req_ben_i(Device_ben[Fraise]),
+
+    .resp_valid_o(Device_resp_valid[Fraise]),
+    .resp_ready_i(Device_resp_ready[Fraise]),
+    .resp_data_o(Device_resp_data[Fraise]) 
+    .resp_ini_addr_o(Device_resp_addr_host[Fraise])
+  ) ; 
+
 
   `ifdef VERILATOR
     simulator_ctrl #(
