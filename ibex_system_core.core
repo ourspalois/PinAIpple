@@ -11,6 +11,7 @@ filesets:
       - openhwgroup:ip:tcdm_interconnect
       - lowrisc:prim:fifo
       - pulp-platform.org::common_cells:1.28.0
+      - integnano:fraise:fraise
     files:
       - rtl/system/pinaipple_system.sv
       - rtl/system/gpio.sv

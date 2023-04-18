@@ -10,6 +10,7 @@
 #include "pinaipple_regs.h"
 #include "uart.h"
 #include "gpio.h"
+#include "fraise.h"
 
 #define UART_IRQ_NUM 16
 #define UART_IRQ (1 << UART_IRQ_NUM)

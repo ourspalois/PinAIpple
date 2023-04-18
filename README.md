@@ -48,6 +48,10 @@ for example to build the hello_world demo run :
 
 ``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/hello_world/demo,elf ```
 
+to run the fraise demo :
+
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/test_fraise/demo,elf ```
+
 ## Run code on the accel
 
 The functions to use the accel ar in sw/pinaipple_lib/fraise.h

@@ -33,8 +33,8 @@ module pinaipple_system #(
   localparam logic [31:0] TIMERSTART = 32'h80002000;
   localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
-  localparam logic [31:0] FRAISESIZE = 8 * 1024 + 1024 ; //array + registers for control and results
-  localparam logic [31:0] FRAISESTART = 32'h90000000;
+  localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
+  localparam logic [31:0] FRAISESTART = 32'h80003000;
   localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
 
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
@@ -88,7 +88,7 @@ module pinaipple_system #(
   // request network hosts
   logic [NbrHosts-1:0]                       Host_req_valid;  // request valid
   logic [NbrHosts-1:0]                       Host_req_ready;  // network ready for req
-  logic [NbrHosts-1:0]                       Host_gnt;  // NO IDEA
+  logic [NbrHosts-1:0]                       Host_gnt;  // grant signal : arbitration beetwen hosts
   logic [NbrHosts-1:0][      DATA_WIDTH-1:0] Host_tgt_addr;  // Host addr
   logic [NbrHosts-1:0]                       Host_we;  // host write enable
   logic [NbrHosts-1:0][DATA_WIDTH/8 - 1 : 0] Host_be;  // byte enable
@@ -213,7 +213,7 @@ module pinaipple_system #(
       .instr_err_i       ('0),                 // don't know what this does
 
       .data_req_o       (Host_req_valid[CoreD]),
-      .data_gnt_i       (Host_req_valid[CoreD]), // need to do real aswering of the nework 
+      .data_gnt_i       (Host_req_valid[CoreD] & Host_req_ready[CoreD]), // need to do real aswering of the nework 
       .data_rvalid_i    (Host_resp_valid[CoreD]),
       .data_we_o        (Host_we[CoreD]),
       .data_be_o        (Host_be[CoreD]),
@@ -222,7 +222,7 @@ module pinaipple_system #(
       .data_wdata_intg_o(),
       .data_rdata_i     (Host_resp_data[CoreD]),
       .data_rdata_intg_i('0),
-      .data_err_i       (1'b0),                    // no erros by default (super safe dont worry)
+      .data_err_i       ('0),                    // no erros by default (super safe dont worry)
 
       .irq_software_i(1'b0),
       .irq_timer_i   (timer_irq),
@@ -256,7 +256,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Ram] && !Device_wen[Ram]) begin
-      Device_resp_addr_host[Ram] <= Device_host_addr[Ram];
+      Device_resp_addr_host[Ram] = Device_host_addr[Ram];
     end
   end
   // not waiting for response ready from the network (should but... lazy)
@@ -291,7 +291,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Gpio] && !Device_wen[Gpio]) begin
-      Device_resp_addr_host[Gpio] <= Device_host_addr[Gpio];
+      Device_resp_addr_host[Gpio] = Device_host_addr[Gpio];
     end
   end
 
@@ -320,7 +320,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Uart]) begin
-      Device_resp_addr_host[Uart] <= Device_host_addr[Uart];
+      Device_resp_addr_host[Uart] = Device_host_addr[Uart];
     end
   end
 
@@ -349,7 +349,7 @@ module pinaipple_system #(
   // send host adress back after one period of clk
   always @(posedge clk_sys_in) begin
     if (Device_req_valid[Timer]) begin
-      Device_resp_addr_host[Timer] <= Device_host_addr[Timer];
+      Device_resp_addr_host[Timer] = Device_host_addr[Timer];
     end
   end
 
@@ -371,23 +371,21 @@ module pinaipple_system #(
       .timer_intr_o  (timer_irq)
   );
 
-  assign Device_req_ready[Fraise] = 1'b1;
-
-
   fraise_top #(
-    .DataWidth(32)
-    .AddressWidth(32),
+    .DataWidth(32),
+    .AddrWidth(32),
     .MatrixSize(4),
     .ArraySize(64),
-    .Nword_used(3)
-  ) (
+    .Nword_used(3),
+    .NbrHostsLog2(NbrHostsLog2)
+  ) u_fraise_accel (
     .clk_i(clk_sys_in),
     .reset_n(rst_sys_in),
 
     .req_valid_i(Device_req_valid[Fraise]),
     .ready_o(Device_req_ready[Fraise]), 
     .req_host_addr_i(Device_host_addr[Fraise]),
-    .req_addri_i({12'b0,Device_tgt_addr[Fraise]}),
+    .req_addr_i({12'b0,Device_tgt_addr[Fraise]}),
 
     .req_wen_i(Device_wen[Fraise]),
     .req_wdata_i(Device_wdata[Fraise]),
@@ -395,7 +393,7 @@ module pinaipple_system #(
 
     .resp_valid_o(Device_resp_valid[Fraise]),
     .resp_ready_i(Device_resp_ready[Fraise]),
-    .resp_data_o(Device_resp_data[Fraise]) 
+    .resp_data_o(Device_resp_data[Fraise]),
     .resp_ini_addr_o(Device_resp_addr_host[Fraise])
   ) ; 
 
