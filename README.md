@@ -55,3 +55,7 @@ to run the fraise demo :
 ## Run code on the accel
 
 The functions to use the accel ar in sw/pinaipple_lib/fraise.h
+
+## build with quartus 
+
+``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=synth --setup --build integnano:pinaipple:pinaipple_system ``` 

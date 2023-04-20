@@ -17,6 +17,7 @@ filesets:
       - rtl/system/gpio.sv
       - rtl/system/uart.sv
       - rtl/system/debounce.sv
+      - rtl/fpga/top_apollo.sv
     file_type: systemVerilogSource
 
 targets:

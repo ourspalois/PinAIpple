@@ -34,7 +34,7 @@ module pinaipple_system #(
   localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
   localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
-  localparam logic [31:0] FRAISESTART = 32'h80003000;
+  localparam logic [31:0] FRAISESTART = 32'h70000000;
   localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
 
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
@@ -114,8 +114,6 @@ module pinaipple_system #(
   logic [NbrDevices-1:0] Device_resp_ready;  // ready for response
   logic [NbrDevices-1:0] [NbrHostsLog2-1:0] Device_resp_addr_host ; // address of the host for resp
   logic [NbrDevices-1:0][DATA_WIDTH-1:0] Device_resp_data;  // response data
-  // assign TODO : change
-  assign Device_resp_addr_host = '0;  // always CPU
 
   logic [DATA_WIDTH-1:0] ibex_data_addr_out ;
   bus_device_e ibex_tgt_addr_out ; 
@@ -125,15 +123,15 @@ module pinaipple_system #(
     if(ibex_data_addr_out <= (SIMCTRLSTART + SIMCTRLSIZE)) begin // true if in adress space
       ibex_tgt_addr_out = SimCtrl;
     end else if(ibex_data_addr_out <= (MEMSTART + MEMSIZE)) begin
-      ibex_tgt_addr_out = Ram;  
+      ibex_tgt_addr_out = Ram;
+    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
+      ibex_tgt_addr_out = Fraise;  
     end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
       ibex_tgt_addr_out = Gpio;
     end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
       ibex_tgt_addr_out = Uart;
     end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
-      ibex_tgt_addr_out = Timer;
-    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
-      ibex_tgt_addr_out = Fraise;    
+      ibex_tgt_addr_out = Timer;   
     end else begin
       ibex_tgt_addr_out = error;
       `ifdef VERILATOR 
@@ -187,7 +185,7 @@ module pinaipple_system #(
       .RegFile       (ibex_pkg::RegFileFPGA),       //use
       .MHPMCounterNum(10),
       .RV32M         (ibex_pkg::RV32MSingleCycle),
-      .RV32B         (ibex_pkg::RV32BNone),
+      .RV32B         (ibex_pkg::RV32BNone)
       //.DbgTriggerEn    ( DbgTriggerEn                            ),
       //.DbgHwBreakNum   ( DbgHwBreakNum                           ),
       //.DmHaltAddr      ( DEBUG_START + dm::HaltAddress[31:0]     ),
@@ -423,7 +421,4 @@ module pinaipple_system #(
       return u_top.u_ibex_core.cs_registers_i.mhpmcounter[index];
     endfunction
   `endif
-
-
-
 endmodule

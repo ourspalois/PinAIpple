@@ -7,6 +7,8 @@ filesets:
       - integnano:pinaipple:pinaipple_core
       - pulp-platform.org::common_cells:1.28.0
   files_quartus: 
+    depend : 
+      - lowrisc:ibex:sim_shared
     files: 
       - rtl/fpga/top_apollo.sv
     file_type: systemVerilogSource
@@ -14,7 +16,7 @@ filesets:
   files_constraints:
     files:
       - data/pins_apollo.tcl
-      - data/contraints_apollo.sdc
+    file_type: tclSource
   
   files_verilator:
     depend:
@@ -31,7 +33,7 @@ parameters:
   SRAMInitFile:
     datatype: str
     description: "SRAM init file in hex vmem format"
-    default: "lien/marche/pas"# XXX : a produire 
+    default: "sw/build/blank/blank.vmem"
     paramtype: vlogparam 
 
   PRIM_DEFAULT_IMPL:
@@ -49,15 +51,16 @@ targets:
     default_tool: quartus
     filesets_append:
       - files_quartus
-      - files_contraints
+      - files_constraints
     toplevel: top_apollo
     tools:
       quartus: 
         family : Agilex 
         device : AGFB014R24B2E2V
         cable : USB-Blaster
-        board_device_index :  2 #no idea what this is
       parameters: 
+        - SRAMInitFile
+
   sim:
     <<: *default_target
     default_tool: verilator
