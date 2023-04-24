@@ -23,7 +23,9 @@ You should see a few cores produced by our team.
 You should install verilator to run this cmd
 run the cmd  
 
-``` fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system ```
+``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system```
+
+
 
 ## compile the testing software
 

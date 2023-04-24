@@ -12,6 +12,8 @@
 #include "gpio.h"
 #include "fraise.h"
 
+#define FRAISE_IRQ_NUM 17
+#define FRAISE_IRQ (1 << FRAISE_IRQ_NUM)
 #define UART_IRQ_NUM 16
 #define UART_IRQ (1 << UART_IRQ_NUM)
 #define DEFAULT_UART UART_FROM_BASE_ADDR(UART0_BASE)

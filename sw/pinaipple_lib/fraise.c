@@ -1,9 +1,10 @@
 #include "fraise.h"
 #include "dev_access.h"
+#include "pinaipple_system.h"
 
 void fraise_turn_on_off(int on_off)
 {
-    *(volatile uint32_t *)(FRAISE_MODE_REG) = on_off ;
+  *(volatile uint32_t *)(FRAISE_ON_OFF_REG) = on_off ;
 }
 
 // input : observations, coded on 16 bits (2 bytes)
@@ -30,4 +31,19 @@ int fraise_get_result(){
 
 void fraise_write_seed(char seed){
   *(volatile uint32_t *)(FRAISE_SEED_REG) = seed ;
+}
+
+void fraise_write_mode(int mode) { // 0 stochastic 1 logarithmic 
+  *(volatile uint32_t *)(FRAISE_MODE_REG) = mode ;
+}
+
+void fraise_irq_enable(){
+  enable_interrupts(FRAISE_IRQ);
+  set_global_interrupt_enable(1);
+  *(volatile uint32_t *)(FRAISE_IRQ_ENABLE_REG) = 1 ;
+}
+
+void fraise_irq_disable(){
+  *(volatile uint32_t *)(FRAISE_IRQ_ENABLE_REG) = 0 ;
+  disable_interrupts(FRAISE_IRQ);
 }

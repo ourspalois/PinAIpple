@@ -59,6 +59,7 @@ module pinaipple_system #(
   //interrupts
   logic timer_irq;
   logic uart_irq;
+  logic fraise_irq;
 
   //instruction fetch signals
 
@@ -225,7 +226,7 @@ module pinaipple_system #(
       .irq_software_i(1'b0),
       .irq_timer_i   (timer_irq),
       .irq_external_i(1'b0),
-      .irq_fast_i    ({14'b0, uart_irq}),
+      .irq_fast_i    ({13'b0, fraise_irq ,uart_irq}),
       .irq_nm_i      (1'b0),
 
       .scramble_key_valid_i('0),
@@ -392,7 +393,8 @@ module pinaipple_system #(
     .resp_valid_o(Device_resp_valid[Fraise]),
     .resp_ready_i(Device_resp_ready[Fraise]),
     .resp_data_o(Device_resp_data[Fraise]),
-    .resp_ini_addr_o(Device_resp_addr_host[Fraise])
+    .resp_ini_addr_o(Device_resp_addr_host[Fraise]),
+    .irq_o(fraise_irq)
   ) ; 
 
 
