@@ -27,15 +27,13 @@ int main (void){
   fraise_write_obs(observations_1, 0) ;
   fraise_write_obs(observations_2, 1) ;
   fraise_irq_enable() ; 
+  // test stochastic mode
   fraise_write_mode(0) ; 
   fraise_run() ;
-
-  while(res_valid == 0){
-
-  }
-  res_valid = 0 ;
-  puthex(result) ;
-
+  asm("wfi") ;
+  // test log mode 
+  fraise_write_mode(1) ;
+  fraise_run() ;
   asm("wfi") ;
 
   return 0 ;

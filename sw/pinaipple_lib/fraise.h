@@ -14,6 +14,14 @@
 #define FRAISE_RES_REG          FRAISE_BASE_REG + 0x18
 #define FRAISE_MODE_REG         FRAISE_BASE_REG + 0x1c
 #define FRAISE_IRQ_ENABLE_REG   FRAISE_BASE_REG + 0x20
+#define FRAISE_WRITE_SET_RESET_REG FRAISE_BASE_REG + 0x24
+#define FRAISE_MEM_ARRAY_START  FRAISE_BASE_ADDR + 0x800
+#define FRAISE_MEM_ARRAY_END    FRAISE_BASE_ADDR + 0xFFF 
+
+typedef enum {
+    SET,
+    RESET,
+} fraise_write_mode_t ;
 
 void fraise_turn_on_off(int);
 void fraise_write_obs(uint16_t *, int);
@@ -23,5 +31,4 @@ int fraise_get_result();
 void fraise_write_mode(int);
 void fraise_irq_enable();
 void fraise_irq_disable();
-
 #endif
