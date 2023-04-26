@@ -27,6 +27,7 @@ int main (void){
   fraise_write_obs(observations_1, 0) ;
   fraise_write_obs(observations_2, 1) ;
   fraise_irq_enable() ; 
+  bypass_comparator() ; 
   // test stochastic mode
   fraise_write_mode(0) ; 
   fraise_run() ;
@@ -35,6 +36,8 @@ int main (void){
   fraise_write_mode(1) ;
   fraise_run() ;
   asm("wfi") ;
+
+  
 
   return 0 ;
 }

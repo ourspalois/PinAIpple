@@ -47,3 +47,27 @@ void fraise_irq_disable(){
   *(volatile uint32_t *)(FRAISE_IRQ_ENABLE_REG) = 0 ;
   disable_interrupts(FRAISE_IRQ);
 }
+
+void set_comp_precision(int precision) {
+  *(volatile uint32_t *)(FRAISE_COMP_PRECISION_REG) = precision ;
+}
+
+void set_reference(uint8_t* array){ // a 32 bits array of the 4 RHS of the comparator
+  *(volatile uint32_t *)(FRAISE_COMP_REFERENCE) = (uint32_t) &array ;
+}
+
+void set_comp_instr(comp_instr_t instr) {
+  *(volatile uint32_t *)(FRAISE_COMP_INSTR_REG) = (int) instr ;
+}
+
+uint8_t get_decision_result() {
+  return (uint8_t)*(volatile uint32_t *)(FRAISE_COMP_RESULT_REG) ;
+}
+
+void bypass_comparator() {
+  *(volatile uint32_t *)(FRAISE_COMP_BYPASS_REG) = 1 ;
+}
+
+void enable_comparator() {
+  *(volatile uint32_t *)(FRAISE_COMP_BYPASS_REG) = 0 ;
+}
