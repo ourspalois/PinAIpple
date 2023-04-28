@@ -19,6 +19,8 @@
 #define FRAISE_COMP_REFERENCE FRAISE_BASE_REG + 0x2C
 #define FRAISE_COMP_RESULT_REG FRAISE_BASE_REG + 0x30
 #define FRAISE_COMP_BYPASS_REG FRAISE_BASE_REG + 0x34 
+#define FRAISE_INFERENCE_WRITE_REG FRAISE_BASE_REG + 0x38
+#define FRAISE_WRITING_SET_RESET_REG FRAISE_BASE_REG + 0x3C
 
 #define FRAISE_MEM_ARRAY_START  FRAISE_BASE_ADDR + 0x800
 #define FRAISE_MEM_ARRAY_END    FRAISE_BASE_ADDR + 0xFFF 
@@ -39,14 +41,21 @@ typedef enum {
     neq
 } comp_instr_t ;
 
+typedef enum {
+    Inference, 
+    Writing, 
+    Writing_seeds,
+} write_inference_t ;
+
 void fraise_turn_on_off(int);
 void fraise_write_obs(uint16_t *, int);
 void fraise_run(void);
-void fraise_write_seed(char);
+void fraise_write_seed(uint32_t);
 int fraise_get_result();
 void fraise_write_mode(int);
 void fraise_irq_enable();
 void fraise_irq_disable();
+void fraise_sel_write_inference(write_inference_t);
 
 void bypass_comparator();
 void enable_comparator();
@@ -54,5 +63,13 @@ void set_comp_precision(int);
 void set_reference(uint8_t *);
 void set_comp_instr(comp_instr_t) ;
 uint8_t get_decision_result() ;
+
+//writing 
+
+// arg1 : a 4 * 8 bit array
+void write_half_line(uint8_t * values, uint8_t addr_col, uint8_t addr_line) ;
+void fraise_write_set_reset(int set_reset) ; 
+void write_line(uint8_t * values, uint8_t addr_col_array , uint8_t addr_line) ;
+void write_distribution(uint8_t * values, uint8_t addr_col_array, uint8_t addr_row_array) ;
 
 #endif

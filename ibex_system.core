@@ -78,6 +78,7 @@ targets:
           - '--trace-structs'
           - '--trace-params'
           - '--trace-max-array 1024'
+          - '--converge-limit 500'
           - '-CFLAGS "-std=c++11 -Wall -DVM_TRACE_FMT_FST -DTOPLEVEL_NAME=pinaipple_system"'
           - '-LDFLAGS "-pthread -lutil -lelf"'
           #- "-Wall"
@@ -85,6 +86,6 @@ targets:
           # RAM primitives wider than 64bit (required for ECC) fail to build in
           # Verilator without increasing the unroll count (see Verilator#1266)
           - "--unroll-count 72"
-          - "--threads 16"
+          - "--threads 24"
     parameters:
       - PRIM_DEFAULT_IMPL=prim_pkg::ImplGeneric
