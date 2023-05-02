@@ -77,7 +77,7 @@ void fraise_sel_write_inference(write_inference_t value){
 }
 
 void write_half_line(uint8_t * values, uint8_t addr_col, uint8_t addr_line) {
-  *(volatile uint32_t *)(FRAISE_MEM_ARRAY_START + (addr_col << 8) + addr_line) = ~(*(uint32_t*)(values)) ; 
+  *(volatile uint32_t *)(FRAISE_MEM_ARRAY_START + (addr_col << 8) + addr_line) = ~(*(uint32_t*)values) ; 
 }
 
 void fraise_write_set_reset(int set_reset){

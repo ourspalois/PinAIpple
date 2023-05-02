@@ -29,36 +29,25 @@ int main (void){
   fraise_irq_enable() ; 
   bypass_comparator() ; 
 
-  // test stochastic mode
-  fraise_write_mode(0) ; 
-  fraise_run() ;
-  asm("wfi") ;
-
   // test log mode 
   fraise_write_mode(1) ;
   fraise_run() ;
   asm("wfi") ;
-
-  int row, line ; 
-  uint8_t array [64* 8] ; 
-  for (line = 0 ; line < 64 ; line++) {
-    for (row = 0 ; row < 8 ; row++) {
-      array[line*8+row] = 0x01 ;
-    }
-  } 
+  
+  uint8_t array_1 [8] = {0x03, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01} ;
 
   //write_distribution(array, 0, 0) ; 
   fraise_sel_write_inference(Writing) ;
   fraise_write_set_reset(1) ; 
-  write_line(array, 0, 0) ; 
-  write_line(array, 1, 0) ; 
-  write_line(array, 2, 0) ;
-  write_line(array, 3, 0) ;
+  write_line(array_1, 0, 0) ; 
+  write_line(array_1, 1, 0) ; 
+  write_line(array_1, 2, 0) ;
+  write_line(array_1, 3, 0) ;
   fraise_write_set_reset(0) ; 
-  write_line(array, 0, 0) ; 
-  write_line(array, 1, 0) ; 
-  write_line(array, 2, 0) ;
-  write_line(array, 3, 0) ;
+  write_line(array_1, 0, 0) ; 
+  write_line(array_1, 1, 0) ; 
+  write_line(array_1, 2, 0) ;
+  write_line(array_1, 3, 0) ;
   fraise_sel_write_inference(Inference) ;
   // so we have only ones everywhere. 
   
@@ -68,11 +57,10 @@ int main (void){
   fraise_sel_write_inference(Writing_seeds) ; 
   fraise_sel_write_inference(Inference) ; 
 
-
+  // log test
   fraise_write_mode(1) ; //TODO: change for a log/ stoch enum 
   fraise_run() ;
   asm("wfi") ;
-
 
   return 0 ;
 }

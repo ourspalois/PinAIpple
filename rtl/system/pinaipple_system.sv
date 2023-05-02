@@ -41,20 +41,20 @@ module pinaipple_system #(
   parameter logic [31:0] SIMCTRLSTART = 32'h20000;
   parameter logic [31:0] SIMCTRLMASK  = ~(SIMCTRLSIZE-1);
 
-  typedef enum int {CoreD} bus_host_e;
+  typedef enum int {CoreD, Fraise_Host} bus_host_e;
 
   typedef enum int {
     Ram,
     Gpio,
     Uart,
     Timer,
-    Fraise,
+    Fraise_Device,
     SimCtrl, 
     error
   } bus_device_e;
 
   localparam int NbrDevices = 6;
-  localparam int NbrHosts = 1;
+  localparam int NbrHosts = 2;
 
   //interrupts
   logic timer_irq;
@@ -126,7 +126,7 @@ module pinaipple_system #(
     end else if(ibex_data_addr_out <= (MEMSTART + MEMSIZE)) begin
       ibex_tgt_addr_out = Ram;
     end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
-      ibex_tgt_addr_out = Fraise;  
+      ibex_tgt_addr_out = Fraise_Device;  
     end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
       ibex_tgt_addr_out = Gpio;
     end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
@@ -381,19 +381,18 @@ module pinaipple_system #(
     .clk_i(clk_sys_in),
     .reset_n(rst_sys_in),
 
-    .req_valid_i(Device_req_valid[Fraise]),
-    .ready_o(Device_req_ready[Fraise]), 
-    .req_host_addr_i(Device_host_addr[Fraise]),
-    .req_addr_i({12'b0,Device_tgt_addr[Fraise]}),
+    .req_valid_i(Device_req_valid[Fraise_Device]),
+    .ready_o(Device_req_ready[Fraise_Device]), 
+    .req_host_addr_i(Device_host_addr[Fraise_Device]),
+    .req_addr_i({12'b0,Device_tgt_addr[Fraise_Device]}),
+    .req_wen_i(Device_wen[Fraise_Device]),
+    .req_wdata_i(Device_wdata[Fraise_Device]),
+    .req_ben_i(Device_ben[Fraise_Device]),
 
-    .req_wen_i(Device_wen[Fraise]),
-    .req_wdata_i(Device_wdata[Fraise]),
-    .req_ben_i(Device_ben[Fraise]),
-
-    .resp_valid_o(Device_resp_valid[Fraise]),
-    .resp_ready_i(Device_resp_ready[Fraise]),
-    .resp_data_o(Device_resp_data[Fraise]),
-    .resp_ini_addr_o(Device_resp_addr_host[Fraise]),
+    .resp_valid_o(Device_resp_valid[Fraise_Device]),
+    .resp_ready_i(Device_resp_ready[Fraise_Device]),
+    .resp_data_o(Device_resp_data[Fraise_Device]),
+    .resp_ini_addr_o(Device_resp_addr_host[Fraise_Device]),
     .irq_o(fraise_irq)
   ) ; 
 
