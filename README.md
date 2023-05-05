@@ -61,3 +61,7 @@ The functions to use the accel ar in sw/pinaipple_lib/fraise.h
 ## build with quartus 
 
 ``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=synth --setup --build integnano:pinaipple:pinaipple_system ``` 
+
+## program the card 
+
+``` quartus_pgm -c "Apollo Agilex" -m "jtag" -o "p;integnano_pinaipple_pinaipple_system_0.sof" ```

@@ -99,7 +99,7 @@ module pinaipple_system #(
   logic [NbrHosts-1:0]                       Host_resp_ready;
   logic [NbrHosts-1:0][      DATA_WIDTH-1:0] Host_resp_data;
   // assign value host side TODO : change
-  assign Host_resp_ready = '1;  // always ready for response
+  assign Host_resp_ready[CoreD] = '1;  // always ready for response
 
   //request network Devices
   localparam int unsigned NbrHostsLog2 = (NbrHosts == 1) ? 1 : $clog2(NbrHosts);
@@ -212,7 +212,7 @@ module pinaipple_system #(
       .instr_err_i       ('0),                 // don't know what this does
 
       .data_req_o       (Host_req_valid[CoreD]),
-      .data_gnt_i       (Host_req_valid[CoreD] & Host_req_ready[CoreD]), // need to do real aswering of the nework 
+      .data_gnt_i       (Host_gnt[CoreD]), // need to do real aswering of the nework 
       .data_rvalid_i    (Host_resp_valid[CoreD]),
       .data_we_o        (Host_we[CoreD]),
       .data_be_o        (Host_be[CoreD]),
@@ -393,9 +393,27 @@ module pinaipple_system #(
     .resp_ready_i(Device_resp_ready[Fraise_Device]),
     .resp_data_o(Device_resp_data[Fraise_Device]),
     .resp_ini_addr_o(Device_resp_addr_host[Fraise_Device]),
-    .irq_o(fraise_irq)
-  ) ; 
+    .irq_o(fraise_irq),
 
+    .Host_req_valid_o(Host_req_valid[Fraise_Host]),
+    .Host_req_ready_i(Host_req_ready[Fraise_Host]),
+    .Host_gnt_i(Host_gnt[Fraise_Host]),
+    .Host_tgt_addr_o(Host_tgt_addr[Fraise_Host]),
+    .Host_wen_o(Host_we[Fraise_Host]),
+    .Host_ben_o(Host_be[Fraise_Host]),
+    .Host_wdata_o(Host_wdata[Fraise_Host]),
+    .Host_resp_valid_i(Host_resp_valid[Fraise_Host]),
+    .Host_resp_data_i(Host_resp_data[Fraise_Host]),
+    .Host_resp_ready_o(Host_resp_ready[Fraise_Host])
+    
+    ) ; 
+
+    // grant control to the network
+    arbiter_l1 #(.NUMBER_HOSTS(2)) u_arbiter (
+      .Host_req_valid_i(Host_req_valid), 
+      .network_ready_i(Host_req_ready),
+      .Host_grant_o(Host_gnt)
+    ) ;
 
   `ifdef VERILATOR
     simulator_ctrl #(
