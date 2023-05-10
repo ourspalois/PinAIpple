@@ -6,9 +6,9 @@ OUTPUT_ARCH(riscv)
 
 MEMORY
 {
-    /* 60 KiB should be enough for anybody... (really not) */
-    ram         : ORIGIN = 0x00100000, LENGTH = 0xE000 /* 56 KiB */
-    stack       : ORIGIN = 0x0010E000, LENGTH = 0x2000  /* 4 KiB */
+    rom (rx) : ORIGIN = 0x00100000, LENGTH = 0x2000 /* 8 KiB */
+    ram         : ORIGIN = 0x00200000, LENGTH = 0xE000 /* 56 KiB */
+    stack       : ORIGIN = 0x0020E000 , LENGTH = 0x2000  /* 4 KiB */
 }
 
 /* Stack information variables */
@@ -29,8 +29,8 @@ SECTIONS
         *(.text)
         *(.text.*)
         . = ALIGN(4);
-    }  > ram
-
+    }  > rom
+    
     .rodata : {
         . = ALIGN(4);
         /* Small RO data before large RO data */
@@ -72,5 +72,6 @@ SECTIONS
         . = ALIGN(4);
         stack = . ;
         _stack = . ;
-    } > stack
+    } > stack 
+    
 }

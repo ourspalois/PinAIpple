@@ -10,8 +10,9 @@
 #include "verilator_memutil.h"
 #include "verilator_sim_ctrl.h"
 
-PinaippleSystem::PinaippleSystem(const char *ram_hier_path, int ram_size)
-    : _ram(ram_hier_path, ram_size, 4) {}
+PinaippleSystem::PinaippleSystem(const char *ram_hier_path, int ram_size, const char *data_ram_hier_path, int data_ram_size)
+    :_rom(ram_hier_path, ram_size, 4) , _ram(data_ram_hier_path, data_ram_size, 4) 
+    {}
 
 int PinaippleSystem::Main(int argc, char **argv)
 {
@@ -40,7 +41,8 @@ int PinaippleSystem::Setup(int argc, char **argv, bool &exit_app)
     simctrl.SetTop(&_top, &_top.clk_sys_in, &_top.rst_sys_in,
                    VerilatorSimCtrlFlags::ResetPolarityNegative);
 
-    _memutil.RegisterMemoryArea("ram", 0x0, &_ram);
+    _memutil.RegisterMemoryArea("rom", 0x100000, &_rom); // TODO: change base to avoid runtime errors
+    _memutil.RegisterMemoryArea("ram", 0x200000, &_ram); // TODO: change base to avoid runtime errors
     simctrl.RegisterExtension(&_memutil);
 
     exit_app = false;

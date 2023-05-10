@@ -13,7 +13,7 @@ void test_fraise_irq(void){
 }
 
 int main (void){
-  install_exception_handler(FRAISE_IRQ_NUM, &test_fraise_irq) ; 
+  //install_exception_handler(FRAISE_IRQ_NUM, &test_fraise_irq) ; 
 
   uint16_t observations_1 [2] ;
   observations_1[0] = 0x0000 ;

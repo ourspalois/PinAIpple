@@ -114,6 +114,6 @@ unsigned int get_mtval();
 uint32_t get_mcycle(void);
 void reset_mcycle(void);
 
-
+void simple_exc_handler(void) ;
 
 #endif // DEMO_SYSTEM_H_

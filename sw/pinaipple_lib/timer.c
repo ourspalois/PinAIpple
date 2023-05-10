@@ -29,7 +29,8 @@ void simple_timer_handler(void) {
 }
 
 void timer_init(void) {
-  install_exception_handler(7, &simple_timer_handler);
+  // TODO: install exception handler in registers
+  //install_exception_handler(7, &simple_timer_handler);
 }
 
 uint64_t timer_read() {

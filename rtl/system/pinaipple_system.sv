@@ -17,9 +17,17 @@ module pinaipple_system #(
     output logic uart_tx_o
 );
 
-  localparam logic [31:0] MEMSIZE = 64 * 1024;  // 64 KiB
-  localparam logic [31:0] MEMSTART = 32'h00100000;
-  localparam logic [31:0] MEMMASK = ~(MEMSIZE - 1);
+  parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
+  parameter logic [31:0] SIMCTRLSTART = 32'h20000;
+  parameter logic [31:0] SIMCTRLMASK  = ~(SIMCTRLSIZE-1);
+
+  localparam logic [31:0] INSTR_MEMSIZE = 8 * 1024 ; 
+  localparam logic [31:0] INSTR_MEMSTART = 32'h00100000;
+  localparam logic [31:0] INSTR_MEMMASK = ~(INSTR_MEMSIZE - 1);
+
+  localparam logic [31:0] DATA_MEMSIZE = 64 * 1024;  // 64 KiB
+  localparam logic [31:0] DATA_MEMSTART = 32'h00200000;
+  localparam logic [31:0] DATA_MEMMASK = ~(DATA_MEMSIZE - 1);
 
   localparam logic [31:0] GPIOSIZE = 4 * 1024;  //  4 KiB
   localparam logic [31:0] GPIOSTART = 32'h80000000;
@@ -36,10 +44,6 @@ module pinaipple_system #(
   localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
   localparam logic [31:0] FRAISESTART = 32'h70000000;
   localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
-
-  parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
-  parameter logic [31:0] SIMCTRLSTART = 32'h20000;
-  parameter logic [31:0] SIMCTRLMASK  = ~(SIMCTRLSIZE-1);
 
   typedef enum int {CoreD, Fraise_Host} bus_host_e;
 
@@ -123,7 +127,9 @@ module pinaipple_system #(
     // switch staement to select the target   
     if(ibex_data_addr_out <= (SIMCTRLSTART + SIMCTRLSIZE)) begin // true if in adress space
       ibex_tgt_addr_out = SimCtrl;
-    end else if(ibex_data_addr_out <= (MEMSTART + MEMSIZE)) begin
+    end else if(ibex_data_addr_out <= (INSTR_MEMSTART + INSTR_MEMSIZE)) begin
+      ibex_tgt_addr_out = error;
+    end else if(ibex_data_addr_out <= (DATA_MEMSTART + DATA_MEMSIZE)) begin
       ibex_tgt_addr_out = Ram;
     end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
       ibex_tgt_addr_out = Fraise_Device;  
@@ -136,7 +142,9 @@ module pinaipple_system #(
     end else begin
       ibex_tgt_addr_out = error;
       `ifdef VERILATOR 
-        $display("ERROR : no target found for adress %h", ibex_data_addr_out);
+        if (Host_req_valid[CoreD]) begin
+          $display("ERROR : no target found for adress %h", ibex_data_addr_out);
+        end
       `endif
     end
 
@@ -249,7 +257,7 @@ module pinaipple_system #(
   // PERIPHERALS //
   /////////////////
 
-  //RAM 2 entries with control for interface with L1 bus
+  //2 RAM withh 1 entries/ram with control for interface with L1 bus
 
   assign Device_req_ready[Ram] = 1'b1;
   // send host adress back after one period of clk
@@ -260,29 +268,37 @@ module pinaipple_system #(
   end
   // not waiting for response ready from the network (should but... lazy)
 
-  ram_2p #(
-      .Depth      (MEMSIZE / 4),
-      .MemInitFile(SRAMInitFile)
-  ) u_ram (
-      .clk_i (clk_sys_in),
-      .rst_ni(rst_sys_in),
+  ram_1p #( // instr ram (1 port) 
+    .Depth(INSTR_MEMSIZE / 4),
+    .MemInitFile(SRAMInitFile)
+  ) instr_ram ( 
+    .clk_i(clk_sys_in),
+    .rst_ni(rst_sys_in),
 
-      .a_req_i   (Device_req_valid[Ram]),
-      .a_we_i    (Device_wen[Ram]),
-      .a_be_i    (Device_ben[Ram]),
-      .a_addr_i  ({12'b0, Device_tgt_addr[Ram]}),
-      .a_wdata_i (Device_wdata[Ram]),
-      .a_rvalid_o(Device_resp_valid[Ram]),
-      .a_rdata_o (Device_resp_data[Ram]),
+    .req_i(mem_instr_req), 
+    .we_i(1'b0), 
+    .be_i(4'b0),
+    .addr_i(core_instr_addr),
+    .wdata_i(32'b0),
+    .rvalid_o(),
+    .rdata_o(mem_instr_rdata)
+  ) ;
 
-      .b_req_i   (mem_instr_req),
-      .b_we_i    (1'b0),
-      .b_be_i    (4'b0),
-      .b_addr_i  (core_instr_addr),
-      .b_wdata_i (32'b0),
-      .b_rvalid_o(),
-      .b_rdata_o (mem_instr_rdata)
-  );
+  ram_1p #( // data ram (1 port) 
+    .Depth(DATA_MEMSIZE / 4),
+    .MemInitFile()
+  ) data_ram ( 
+    .clk_i(clk_sys_in),
+    .rst_ni(rst_sys_in),
+
+    .req_i(Device_req_valid[Ram]), 
+    .we_i(Device_wen[Ram]), 
+    .be_i(Device_ben[Ram]),
+    .addr_i({12'b0, Device_tgt_addr[Ram]}),
+    .wdata_i(Device_wdata[Ram]),
+    .rvalid_o(Device_resp_valid[Ram]),
+    .rdata_o(Device_resp_data[Ram])
+  ) ;
 
   // GPIO
 
@@ -369,7 +385,7 @@ module pinaipple_system #(
       .timer_err_o   (),
       .timer_intr_o  (timer_irq)
   );
-
+  
   fraise_top #(
     .DataWidth(32),
     .AddrWidth(32),
@@ -414,7 +430,7 @@ module pinaipple_system #(
       .network_ready_i(Host_req_ready),
       .Host_grant_o(Host_gnt)
     ) ;
-
+  
   `ifdef VERILATOR
     simulator_ctrl #(
       .LogName("pinaipple_system.log"),
