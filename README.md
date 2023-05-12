@@ -42,17 +42,17 @@ popd
 
 ## Run the simulator
 
-``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system [-t] --meminit=ram,<your binary>,<type of your file> ```
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system [-t] --load_elf=<your binary> ```
 
 the type of your bin file can be found using the cmd : ``` file <the file> ``` it should be an elf or vmem file.
 
 for example to build the hello_world demo run :
 
-``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/hello_world/demo,elf ```
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --load-elf=./sw/build/demo/hello_world/demo ```
 
 to run the fraise demo :
 
-``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/test_fraise/demo,elf ```
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --load-elf=./sw/build/demo/test_fraise/demo ```
 
 ## Run code on the accel
 
