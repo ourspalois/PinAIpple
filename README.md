@@ -23,9 +23,7 @@ You should see a few cores produced by our team.
 You should install verilator to run this cmd
 run the cmd  
 
-``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system```
-
-
+``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system ```
 
 ## compile the testing software
 
@@ -52,16 +50,16 @@ for example to build the hello_world demo run :
 
 to run the fraise demo :
 
-``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --meminit=ram,./sw/build/demo/test_fraise/demo,elf ```
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --load-elf=./sw/build/demo/test_fraise/demo ```
 
 ## Run code on the accel
 
 The functions to use the accel ar in sw/pinaipple_lib/fraise.h
 
-## build with quartus 
+## build with quartus
 
-``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=synth --setup --build integnano:pinaipple:pinaipple_system ``` 
+``` time fusesoc --cores-root=. --log-file fusesoc.log run --target=synth --setup --build integnano:pinaipple:pinaipple_system ```
 
-## program the card 
+## program the card
 
 ``` quartus_pgm -c "Apollo Agilex" -m "jtag" -o "p;integnano_pinaipple_pinaipple_system_0.sof" ```

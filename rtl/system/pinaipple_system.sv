@@ -390,7 +390,7 @@ module pinaipple_system #(
     .DataWidth(32),
     .AddrWidth(32),
     .MatrixSize(4),
-    .ArraySize(64),
+    .ArraySize(8),
     .Nword_used(3),
     .NbrHostsLog2(NbrHostsLog2)
   ) u_fraise_accel (

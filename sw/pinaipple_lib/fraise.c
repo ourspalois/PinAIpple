@@ -9,13 +9,10 @@ void fraise_turn_on_off(int on_off)
 
 // input : observations, coded on 16 bits (2 bytes)
 // input : obs_id, id of the observation
-void fraise_write_obs(uint16_t *observations, int obs_id){
-  uint32_t to_write = (uint32_t)observations[0] | (uint32_t)(observations[1]<<16) ;
-  if(obs_id == 0) {
-    *(volatile uint32_t *)(FRAISE_OBS0_REG) = to_write ; 
-  } else if (obs_id == 1) {
-    *(volatile uint32_t *)(FRAISE_OBS1_REG) = to_write ;
-  }
+void fraise_write_obs(uint8_t *observations){
+  uint32_t to_write = (uint32_t)observations[0] | (uint32_t)(observations[1]<<8) | (uint32_t)(observations[2]<<16) | (uint32_t)(observations[3]<<24) ;
+  *(volatile uint32_t *)(FRAISE_OBS0_REG) = to_write ; 
+  
 }
 
 void fraise_run(void){
@@ -27,14 +24,6 @@ int fraise_get_result(){
     // wait for the result to be valid
   }
   return *(volatile uint32_t *)(FRAISE_RES_REG) ;
-}
-
-void fraise_write_seed(uint32_t seed){
-  *(volatile uint32_t *)(FRAISE_SEED_REG) = seed ;
-}
-
-void fraise_write_mode(int mode) { // 0 stochastic 1 logarithmic 
-  *(volatile uint32_t *)(FRAISE_MODE_REG) = mode ;
 }
 
 void fraise_irq_enable(){
@@ -76,29 +65,10 @@ void fraise_sel_write_inference(write_inference_t value){
   *(volatile uint32_t *)(FRAISE_INFERENCE_WRITE_REG) = (int) value ;
 }
 
-void write_half_line(uint8_t * values, uint8_t addr_col, uint8_t addr_line) {
-  *(volatile uint32_t *)(FRAISE_MEM_ARRAY_START + (addr_col << 8) + addr_line) = ~(*(uint32_t*)values) ; 
-}
-
 void fraise_write_set_reset(int set_reset){
   *(volatile uint32_t *)(FRAISE_WRITING_SET_RESET_REG) = set_reset ;
 }
 
-void write_line(uint8_t * values, uint8_t addr_col_array, uint8_t addr_line) {
-  write_half_line(values, (addr_col_array << 1) , addr_line);
-  write_half_line(values+4, (addr_col_array << 1) + 1, addr_line);
-}
-
-void write_distribution(uint8_t * values, uint8_t addr_col_array, uint8_t addr_row_array){
-  fraise_sel_write_inference(Writing) ;
-  fraise_write_set_reset(1) ; 
-  int line ; 
-  for(line = 0 ; line < 64 ; line ++){
-    write_line(values + (line << 3), addr_col_array, (addr_row_array << 6) + line);
-  }
-  fraise_write_set_reset(0) ;
-  for(line = 0 ; line < 64 ; line ++){
-    write_line(values + (line << 3), addr_col_array, (addr_row_array << 6) + line);
-  }
-  fraise_sel_write_inference(Inference) ;
+void write_line_block(uint8_t * values, uint8_t addr_col_array, uint8_t addr_line) {
+  *(volatile uint32_t *)((FRAISE_MEM_ARRAY_START) | ((addr_col_array & 3) << 3) | (addr_line & 5) ) = ~(*(uint32_t*)values) ;
 }
