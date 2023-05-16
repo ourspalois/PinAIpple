@@ -15,6 +15,19 @@ module pinaipple_system #(
     output logic [GPOWidth-1:0] gp_o,
     input logic uart_rx_i,
     output logic uart_tx_o
+
+    `ifndef VERILATOR
+    , output logic CBL,
+    output logic CBLEN,
+    output logic CSL,
+    output logic CWL,
+    output logic [1:0] instructions,
+    output logic [4:0] addr_col,
+    output logic [4:0] addr_row,
+    input logic bit_out [3:0] 
+
+    `endif 
+
 );
 
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
@@ -421,6 +434,17 @@ module pinaipple_system #(
     .Host_resp_valid_i(Host_resp_valid[Fraise_Host]),
     .Host_resp_data_i(Host_resp_data[Fraise_Host]),
     .Host_resp_ready_o(Host_resp_ready[Fraise_Host])
+
+    `ifndef VERILATOR
+    ,.CBL(CBL),
+    .CBLEN(CBLEN),
+    .CSL(CSL),
+    .CWL(CWL),
+    .instructions(instructions),
+    .addr_col(addr_col),
+    .addr_row(addr_row),
+    .bit_out_top(bit_out)
+    `endif 
     
     ) ; 
 
