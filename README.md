@@ -62,4 +62,8 @@ The functions to use the accel ar in sw/pinaipple_lib/fraise.h
 
 ## program the card
 
-``` quartus_pgm -c "Apollo Agilex" -m "jtag" -o "p;integnano_pinaipple_pinaipple_system_0.sof" ```
+``` bash
+pushd build/integnano_pinaipple_pinaipple_system_0/synth-quartus/
+quartus_pgm -c "Apollo Agilex" -m "jtag" -o "p;integnano_pinaipple_pinaipple_system_0.sof" 
+popd
+```
