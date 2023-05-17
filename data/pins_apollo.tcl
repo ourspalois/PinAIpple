@@ -9,7 +9,7 @@ set_location_assignment PIN_W54 -to rst_sys_in
 set_instance_assignment -name IO_STANDARD "1.2V" -to rst_sys_in
 # uart
 #set_location_assignment PIN_F32 -to uart_tx
-#set_instance_assignment -name IO_STANDARD "1.2V" -to uart_tx
+#set_instance_assignment -name IO_STANDARD "1.2V" -to uart_tx # TODO: uart pins ??? terasic doc O_O
 #set_location_assignment PIN_K29 -to uart_rx
 #set_instance_assignment -name IO_STANDARD "1.2V" -to uart_rx
 
