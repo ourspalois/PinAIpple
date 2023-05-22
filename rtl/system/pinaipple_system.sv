@@ -207,7 +207,9 @@ module pinaipple_system #(
       .RegFile       (ibex_pkg::RegFileFPGA),       //use
       .MHPMCounterNum(10),
       .RV32M         (ibex_pkg::RV32MSingleCycle),
-      .RV32B         (ibex_pkg::RV32BNone)
+      .RV32B         (ibex_pkg::RV32BNone),
+      .BranchTargetALU('1),
+      .WritebackStage('1)
       //.DbgTriggerEn    ( DbgTriggerEn                            ),
       //.DbgHwBreakNum   ( DbgHwBreakNum                           ),
       //.DmHaltAddr      ( DEBUG_START + dm::HaltAddress[31:0]     ),
