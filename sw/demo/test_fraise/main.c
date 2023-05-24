@@ -13,6 +13,17 @@ void test_fraise_irq(void){
 }
 
 int main (void){
+  uint32_t cmptr = 0; 
+  uint32_t output = 1 ;
+  while(1){
+    cmptr = cmptr + 1 ; 
+    if (cmptr == 50000000){
+      cmptr = 0 ;
+       output = 1 - output ; 
+       *((volatile uint32_t*)GPIO_OUT) = output ;
+    }
+  }
+  /*
   //install_exception_handler(FRAISE_IRQ_NUM, &test_fraise_irq) ; 
 
   uint8_t observations [4] = {0x00, 0x00, 0x00, 0x00} ;
@@ -50,5 +61,5 @@ int main (void){
   fraise_run() ;
   asm("wfi") ;
 
-  return 0 ;
+  return 0 ; */
 }

@@ -6,8 +6,8 @@ OUTPUT_ARCH(riscv)
 
 MEMORY
 {
-    rom (rx) : ORIGIN = 0x00100000, LENGTH = 0x2000 /* 8 KiB */
-    ram         : ORIGIN = 0x00200000, LENGTH = 0xE000 /* 56 KiB */
+    rom (rx)    : ORIGIN = 0x00100000, LENGTH = 0x2000 /* 8 KiB */
+    ram (rwx)   : ORIGIN = 0x00200000, LENGTH = 0xE000 /* 56 KiB */
     stack       : ORIGIN = 0x0020E000 , LENGTH = 0x2000  /* 4 KiB */
 }
 
@@ -29,7 +29,7 @@ SECTIONS
         *(.text)
         *(.text.*)
         . = ALIGN(4);
-    }  > rom
+    } > rom
     
     .rodata : {
         . = ALIGN(4);
@@ -39,7 +39,7 @@ SECTIONS
         *(.rodata);
         *(.rodata.*)
         . = ALIGN(4);
-    } > ram
+    } > rom
 
     .data : {
         . = ALIGN(4);
@@ -49,7 +49,7 @@ SECTIONS
         *(.data);
         *(.data.*)
         . = ALIGN(4);
-    } > ram
+    } > ram AT>rom
 
     .bss :
     {

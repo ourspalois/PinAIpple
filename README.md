@@ -8,7 +8,7 @@ to install run
 ``` pip3 install -U -r python-requirements.txt ```
 
 you should have quartus (pro only) or vivado installed fo compilation
-you should also have ariscv toolchain for rv32imc (can get a release if you dont want to wait a few hours)
+you should also have a riscv toolchain for rv32imc (can get a release if you dont want to wait a few hours)
 
 ## run fusesoc test
 
@@ -38,7 +38,15 @@ popd
 
 ```
 
-## Run the simulator
+## compile bootloader
+
+run the cmd
+
+``` bash
+make load_image
+```
+
+## Run the simulator with memory load (curently broken)
 
 ``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system [-t] --meminit=ram,<your binary>,<type of your file> ```
 
@@ -51,6 +59,10 @@ for example to build the hello_world demo run :
 to run the fraise demo :
 
 ``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t --load-elf=./sw/build/demo/test_fraise/demo ```
+
+## Run the simulator on rom only
+
+``` ./build/integnano_pinaipple_pinaipple_system_0/sim-verilator/Vpinaipple_system -t ```
 
 ## Run code on the accel
 

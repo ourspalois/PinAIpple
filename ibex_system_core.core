@@ -18,6 +18,7 @@ filesets:
       - rtl/system/uart.sv
       - rtl/system/debounce.sv
       - rtl/system/arbiter_L1.sv
+      - rtl/system/rom_1p.sv
       - rtl/fpga/top_apollo.sv
     file_type: systemVerilogSource
 

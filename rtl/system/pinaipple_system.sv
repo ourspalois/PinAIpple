@@ -43,15 +43,15 @@ module pinaipple_system #(
   localparam logic [31:0] DATA_MEMMASK = ~(DATA_MEMSIZE - 1);
 
   localparam logic [31:0] GPIOSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] GPIOSTART = 32'h80000000;
+  localparam logic [31:0] GPIOSTART = 32'h08000000;
   localparam logic [31:0] GPIOMASK = ~(GPIOSIZE - 1);
 
   localparam logic [31:0] UARTSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] UARTSTART = 32'h80001000;
+  localparam logic [31:0] UARTSTART = 32'h08001000;
   localparam logic [31:0] UARTMASK = ~(UARTSIZE - 1);
 
   localparam logic [31:0] TIMERSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] TIMERSTART = 32'h80002000;
+  localparam logic [31:0] TIMERSTART = 32'h08002000;
   localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
   localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
@@ -143,15 +143,15 @@ module pinaipple_system #(
     end else if(ibex_data_addr_out <= (INSTR_MEMSTART + INSTR_MEMSIZE)) begin
       ibex_tgt_addr_out = error;
     end else if(ibex_data_addr_out <= (DATA_MEMSTART + DATA_MEMSIZE)) begin
-      ibex_tgt_addr_out = Ram;
-    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
-      ibex_tgt_addr_out = Fraise_Device;  
+      ibex_tgt_addr_out = Ram;  
     end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
       ibex_tgt_addr_out = Gpio;
     end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
       ibex_tgt_addr_out = Uart;
     end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
-      ibex_tgt_addr_out = Timer;   
+      ibex_tgt_addr_out = Timer; 
+    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
+      ibex_tgt_addr_out = Fraise_Device;  
     end else begin
       ibex_tgt_addr_out = error;
       `ifdef VERILATOR 
@@ -283,20 +283,14 @@ module pinaipple_system #(
   end
   // not waiting for response ready from the network (should but... lazy)
 
-  ram_1p #( // instr ram (1 port) 
-    .Depth(INSTR_MEMSIZE / 4),
-    .MemInitFile(SRAMInitFile)
-  ) instr_ram ( 
+  rom_1p #(
+    .Depth(INSTR_MEMSIZE)
+  ) instr_ram (
     .clk_i(clk_sys_in),
-    .rst_ni(rst_sys_in),
 
-    .req_i(mem_instr_req), 
-    .we_i(1'b0), 
-    .be_i(4'b0),
+    .req_i(mem_instr_req),
     .addr_i(core_instr_addr),
-    .wdata_i(32'b0),
-    .rvalid_o(),
-    .rdata_o(mem_instr_rdata)
+    .data_o(mem_instr_rdata)
   ) ;
 
   ram_1p #( // data ram (1 port) 
