@@ -2,6 +2,9 @@
 #include "timer.h"
 #include "fraise.h"
 
+/*
+ * Interupt function for the accelerator
+*/
 void test_fraise_irq(void) __attribute__((interrupt)) ;
 
 volatile int result ; 

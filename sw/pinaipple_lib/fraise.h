@@ -64,4 +64,6 @@ uint8_t get_decision_result() ;
 void fraise_write_set_reset(int set_reset) ; 
 void write_line_block(uint8_t * values, uint8_t addr_col_array , uint8_t addr_line) ;
 
+void test_fraise_irq(void) __attribute__((interrupt)) ;
+
 #endif

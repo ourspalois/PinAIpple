@@ -22,4 +22,5 @@ void uart_enable_rx_int(void);
 int uart_in(uart_t uart);
 void uart_out(uart_t uart, char c);
 
+
 #endif // UART_H__

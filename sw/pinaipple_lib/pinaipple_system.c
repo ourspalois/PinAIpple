@@ -7,7 +7,7 @@
 #include "uart.h"
 #include "dev_access.h"
 
-int putchar(int c) {
+int putchar(char c) {
 #ifdef SIM_CTRL_OUTPUT
   DEV_WRITE(SIM_CTRL_BASE + SIM_CTRL_OUT, c);
 #else

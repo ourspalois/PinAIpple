@@ -1,0 +1,1 @@
+add_prog(bootloader bootloader.c)

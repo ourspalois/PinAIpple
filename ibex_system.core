@@ -10,13 +10,18 @@ filesets:
     depend : 
       - lowrisc:ibex:sim_shared
     files: 
-      - rtl/fpga/top_apollo.sv
+      - rtl/fpga/top_fpga.sv
     file_type: systemVerilogSource
 
-  files_constraints:
+  files_constraints_quartus:
     files:
       - data/pins_apollo.tcl
     file_type: tclSource
+
+  files_constraints_zybo:
+    files:
+      - data/pins_zybo_10.xdc
+    file_type: xdc
   
   files_verilator:
     depend:
@@ -51,15 +56,27 @@ targets:
     default_tool: quartus
     filesets_append:
       - files_quartus
-      - files_constraints
-    toplevel: top_apollo
+      - files_constraints_quartus
+    toplevel: top_fpga
     tools:
       quartus: 
-        family : Agilex 
-        device : AGFB014R24B2E2V
-        cable : USB-Blaster
+        family : Cyclone V
+        device : 5CSXFC6D6F31C6
+        cable : "DE-SOC"
+        board_device_index : 2
       parameters: 
         - SRAMInitFile
+  synth_vivado:
+    <<: *default_target
+    default_tool: vivado
+    description: "Synthesize the design using Vivado"
+    filesets_append:
+      - files_quartus
+      - files_constraints_zybo
+    toplevel: top_fpga
+    tools:
+      vivado:
+        part: xc7z010clg400-1
 
   sim:
     <<: *default_target

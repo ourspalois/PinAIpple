@@ -29,6 +29,7 @@
 
 #define DEFAULT_SPI SPI_FROM_BASE_ADDR(SPI0_BASE)
 
+
 /**
  * Writes character to default UART. Signature matches c stdlib function
  * of the same name.
@@ -36,7 +37,7 @@
  * @param c Character to output
  * @returns Character output (never fails so no EOF ever returned)
  */
-int putchar(int c);
+int putchar(char c);
 
 /**
  * Reads character from default UART. Signature matches c stdlib function

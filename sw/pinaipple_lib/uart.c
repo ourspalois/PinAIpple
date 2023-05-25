@@ -6,6 +6,7 @@
 #include "dev_access.h"
 #include "pinaipple_system.h"
 
+
 void uart_enable_rx_int(void) {
   enable_interrupts(UART_IRQ);
   set_global_interrupt_enable(1);
