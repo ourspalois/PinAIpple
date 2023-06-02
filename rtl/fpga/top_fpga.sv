@@ -5,13 +5,13 @@ module top_fpga #(
     input logic clk, 
     input logic rst_sys_in,
     input logic uart_rx,
-    input logic uart_tx, 
+    output logic uart_tx, 
     input logic [GPIWidth-1:0] gp_i, 
     output logic [GPOWidth-1:0] gp_o,
     //CHIP
     output logic clk_i, 
-    output logic io_out, 
-    output logic io_in, 
+    //output logic io_out, 
+    //output logic io_in, 
 	output logic CBL0, CBLEN0, CSL0, CWL0,
 	output logic [1:0] instructions_in,		// // "11" form and prog, "10" read_mem, "01" read_reg, "00" inference
 	output logic [5-1:0] adr_full_col_in,		//adr for array_col + mem_col  
@@ -20,15 +20,26 @@ module top_fpga #(
 	input logic DATA_out [2**2-1:0]
 );
 
-    assign io_out = '0;
-    assign io_in = '1;
+    //assign io_out = '0;
+    //assign io_in = '1;
+    logic low_freq_clk ; 
 
-    assign clk_i = clk; 
+    int counter = 0 ; 
+    always_ff @( posedge(clk) ) begin : CLK_DIVISOR
+        if (counter == 4) begin
+            counter <= 0;
+            low_freq_clk <= ~low_freq_clk;
+        end else begin
+            counter <= counter + 1;
+        end
+    end
+
+    assign clk_i = low_freq_clk; 
     pinaipple_system #(
         .GPIWidth(GPIWidth),
         .GPOWidth(GPOWidth)
     ) u_pinaipple_system (
-        .clk_sys_in(clk),
+        .clk_sys_in(low_freq_clk),
         .rst_sys_in(~rst_sys_in), // active low reset
         .uart_rx_i(uart_rx),
         .uart_tx_o(uart_tx),

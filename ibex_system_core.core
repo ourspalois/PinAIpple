@@ -19,7 +19,6 @@ filesets:
       - rtl/system/debounce.sv
       - rtl/system/arbiter_L1.sv
       - rtl/system/rom_1p.sv
-      - rtl/fpga/top_fpga.sv
     file_type: systemVerilogSource
 
 targets:

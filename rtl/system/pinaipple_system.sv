@@ -3,7 +3,7 @@ import tcdm_interconnect_pkg::topo_e;
 module pinaipple_system #(
     parameter int GPIWidth = 8,
     parameter int GPOWidth = 8,
-    parameter int CLK_FREQ = 50_000_000,
+    parameter int CLK_FREQ = 12_500_000,
     parameter int DATA_WIDTH = 32,
     parameter int ADDR_DEV_WIDTH = 20,
     parameter SRAMInitFile = ""
@@ -42,35 +42,37 @@ module pinaipple_system #(
   localparam logic [31:0] DATA_MEMSTART = 32'h00200000;
   localparam logic [31:0] DATA_MEMMASK = ~(DATA_MEMSIZE - 1);
 
-  localparam logic [31:0] GPIOSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] GPIOSTART = 32'h08000000;
-  localparam logic [31:0] GPIOMASK = ~(GPIOSIZE - 1);
-
-  localparam logic [31:0] UARTSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] UARTSTART = 32'h08001000;
-  localparam logic [31:0] UARTMASK = ~(UARTSIZE - 1);
-
-  localparam logic [31:0] TIMERSIZE = 4 * 1024;  //  4 KiB
-  localparam logic [31:0] TIMERSTART = 32'h08002000;
-  localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
-
   localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
   localparam logic [31:0] FRAISESTART = 32'h70000000;
   localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
+
+  localparam logic [31:0] GPIOSIZE = 4 * 1024;  //  4 KiB
+  localparam logic [31:0] GPIOSTART = 32'h80000000;
+  localparam logic [31:0] GPIOMASK = ~(GPIOSIZE - 1);
+
+  localparam logic [31:0] UARTSIZE = 4 * 1024;  //  4 KiB
+  localparam logic [31:0] UARTSTART = 32'h80001000;
+  localparam logic [31:0] UARTMASK = ~(UARTSIZE - 1);
+
+  localparam logic [31:0] TIMERSIZE = 4 * 1024;  //  4 KiB
+  localparam logic [31:0] TIMERSTART = 32'h80002000;
+  localparam logic [31:0] TIMERMASK = ~(TIMERSIZE - 1);
 
   typedef enum int {CoreD, Fraise_Host} bus_host_e;
 
   typedef enum int {
     Ram,
+    Rom,
     Gpio,
     Uart,
     Timer,
     Fraise_Device,
     SimCtrl, 
-    error
+    error,
+    osef
   } bus_device_e;
 
-  localparam int NbrDevices = 6;
+  localparam int NbrDevices = 8;
   localparam int NbrHosts = 2;
 
   //interrupts
@@ -141,17 +143,24 @@ module pinaipple_system #(
     if(ibex_data_addr_out <= (SIMCTRLSTART + SIMCTRLSIZE)) begin // true if in adress space
       ibex_tgt_addr_out = SimCtrl;
     end else if(ibex_data_addr_out <= (INSTR_MEMSTART + INSTR_MEMSIZE)) begin
-      ibex_tgt_addr_out = error;
+      if(Host_we[CoreD] == 0) begin
+        ibex_tgt_addr_out = Rom;
+      end else begin
+        ibex_tgt_addr_out = error;
+        `ifdef VERILATOR
+          $display("Error : CoreD is trying to write ROM") ;
+        `endif 
+      end
     end else if(ibex_data_addr_out <= (DATA_MEMSTART + DATA_MEMSIZE)) begin
-      ibex_tgt_addr_out = Ram;  
+      ibex_tgt_addr_out = Ram;
+    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
+      ibex_tgt_addr_out = Fraise_Device;   
     end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
       ibex_tgt_addr_out = Gpio;
     end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
       ibex_tgt_addr_out = Uart;
     end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
-      ibex_tgt_addr_out = Timer; 
-    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
-      ibex_tgt_addr_out = Fraise_Device;  
+      ibex_tgt_addr_out = Timer;  
     end else begin
       ibex_tgt_addr_out = error;
       `ifdef VERILATOR 
@@ -291,6 +300,37 @@ module pinaipple_system #(
     .req_i(mem_instr_req),
     .addr_i(core_instr_addr),
     .data_o(mem_instr_rdata)
+  ) ;
+
+  // rom for the bus (TODO: merge with the instr rom)
+
+  assign Device_req_ready[Rom] = 1'b1 ;
+  logic counter = '0 ;
+
+  always_ff @( posedge(clk_sys_in) ) begin 
+    if(Device_req_valid[Rom]) begin
+      Device_resp_valid[Rom] = 1'b1 ; 
+      Device_resp_addr_host[Rom] = Device_host_addr[Rom] ;
+      counter = '1 ;
+    end else begin
+      if(counter) begin
+        Device_resp_valid[Rom] = 1'b1 ;
+        counter = '0 ;
+      end else begin
+        Device_resp_valid[Rom] = 1'b0 ;
+      end
+      
+    end
+  end
+
+  rom_1p #(
+    .Depth(INSTR_MEMSIZE)
+  ) instr_ram_bus (
+    .clk_i(clk_sys_in),
+
+    .req_i(Device_req_valid[Rom]),
+    .addr_i({12'b0, Device_tgt_addr[Rom]} | INSTR_MEMSTART),
+    .data_o(Device_resp_data[Rom])
   ) ;
 
   ram_1p #( // data ram (1 port) 

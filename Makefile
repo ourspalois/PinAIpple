@@ -73,7 +73,7 @@ asm.log: $(BOOT_ELF)
 # -----------------------------------------------------------------------------
 # write to rtl
 # -----------------------------------------------------------------------------
-.PHONY : write_boot_image gen_asm compile_rtl program_fpga clean compile_sim
+.PHONY : write_boot_image gen_asm compile_rtl program_fpga_quartus clean compile_sim
 write_boot_image: app.bin $(IMAGE_GENERATOR)
 	@echo "Writing image to rtl..."
 	@$(IMAGE_GENERATOR) -bld_img $< $(BOOT_IMAGE)
@@ -94,9 +94,13 @@ compile_sim: gen_asm
 	@echo "Compiling RTL..."
 	@/usr/bin/time fusesoc --cores-root=. --log-file fusesoc.log run --target=sim --tool=verilator --setup --build integnano:pinaipple:pinaipple_system
 
-program_fpga: 
+program_fpga_quartus: 
 	@echo "Programming FPGA..."
 	@cd build/integnano_pinaipple_pinaipple_system_0/synth-quartus/; quartus_pgm -c "Apollo Agilex" -m "jtag" -o "p;integnano_pinaipple_pinaipple_system_0.sof" 
+
+program_fpga_vivado:
+	@echo "Programming FPGA..."
+	@make -C ./build/integnano_pinaipple_pinaipple_system_0/synth_vivado-vivado/ pgm
 
 clean : 
 ifneq ($(wildcard ./sw/build/),)
@@ -104,4 +108,13 @@ ifneq ($(wildcard ./sw/build/),)
 endif
 ifneq ($(wildcard ./build/),)
 	@rm -r build
+endif
+ifneq ($(wildcard ./fusesoc.log),)
+	@rm fusesoc.log
+endif
+ifneq ($(wildcard ./asm.log),)
+	@rm asm.log
+endif
+ifneq ($(wildcard ./pinaipple_system_pcount.csv),)
+	@rm pinaipple_system_pcount.csv
 endif

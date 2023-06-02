@@ -29,7 +29,6 @@ int puts(const char *str) {
   while (*str) {
     putchar(*str++);
   }
-
   return 0;
 }
 

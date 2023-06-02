@@ -7,7 +7,7 @@
 
 #define UART0_BASE 0x80001000
 
-#define GPIO_BASE  0x08000000
+#define GPIO_BASE  0x80000000
 
 #define TIMER_BASE 0x08002000
 
