@@ -46,7 +46,7 @@ typedef enum {
 void fraise_turn_on_off(int);
 void fraise_write_obs(uint8_t *);
 void fraise_run(void);
-int fraise_get_result();
+uint32_t fraise_get_result();
 void fraise_irq_enable();
 void fraise_irq_disable();
 void fraise_sel_write_inference(write_inference_t);

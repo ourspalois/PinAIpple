@@ -19,7 +19,7 @@ void fraise_run(void){
   *(volatile uint32_t *)(FRAISE_LAUNCH_REG) = 1 ;
 }
 
-int fraise_get_result(){
+uint32_t fraise_get_result(){
   while(*(volatile uint32_t *)(FRAISE_RES_VALID_REG) == 0){
     // wait for the result to be valid
   }
