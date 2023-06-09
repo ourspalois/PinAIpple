@@ -39,7 +39,7 @@ int main(void){
   fraise_irq_enable() ; 
   bypass_comparator() ;
 
-  uint8_t array_1 [8] = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01} ;
+  uint8_t array_1 [8] = {0x03, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02} ;
 
   fraise_sel_write_inference(Writing) ;
   fraise_write_set_reset(1) ; 
@@ -56,16 +56,17 @@ int main(void){
 
   fraise_run() ;
   asm("wfi") ;
-
   char string[10] ;
+
+  result = *(volatile uint32_t *)(FRAISE_MEM_ARRAY_START) ;
   convert_int_to_char(result , string) ;
   int i = 0 ; 
   while(string[i] != 0){
     putchar(string[i]) ;
     i++ ;
   }
+  putchar('\n') ;
 
-  asm("wfi") ;
 
   return 0;
 }

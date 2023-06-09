@@ -492,6 +492,13 @@ module pinaipple_system #(
     ) ;
   
   `ifdef VERILATOR
+    assign Device_req_ready[SimCtrl] = 1'b1;
+    // send host adress back after one period of clk
+    always @(posedge clk_sys_in) begin
+      if (Device_req_valid[SimCtrl]) begin
+        Device_resp_addr_host[SimCtrl] = Device_host_addr[SimCtrl];
+      end
+    end
     simulator_ctrl #(
       .LogName("pinaipple_system.log"),
       .FlushOnChar(0)
