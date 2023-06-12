@@ -33,6 +33,7 @@ $(IMAGE_GENERATOR): sw/image_gen/image_gen.c
 # Application targets
 # -----------------------------------------------------------------------------
 # TODO: add another way to compile with the omptions for sim control
+# -D SIM_CTRL_OUTPUT=ON
 $(APP_ELF):
 	@echo "Build application"
 ifneq ($(wildcard ./sw/build/),)
@@ -42,7 +43,7 @@ ifneq ($(wildcard ./sw/build/),)
 endif 
 	@echo "Compiling application"
 	@mkdir sw/build
-	@cd sw/build ;cmake -D SIM_CTRL_OUTPUT=ON ../ ; make 
+	@cd sw/build ;cmake ../ ; make 
 	@echo "Memory utilization of bootloader:"
 	$(SIZE) $(APP_ELF)/bootloader/bootloader
 	@echo "Memory utilization of application:"
