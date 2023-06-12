@@ -5,7 +5,7 @@
 RISCV_PREFIX ?= riscv32-unknown-elf-
 
 # Compiler tools
-CC      = $(RISCV_PREFIX)gcc
+CC      = $(RISCV_PREFIX)gcc 
 OBJDUMP = $(RISCV_PREFIX)objdump
 OBJCOPY = $(RISCV_PREFIX)objcopy
 SIZE    = $(RISCV_PREFIX)size

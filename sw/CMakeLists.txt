@@ -12,7 +12,7 @@ set(COMMON_DIR "${CMAKE_CURRENT_LIST_DIR}/pinaipple_lib")
 set(LINKER_SCRIPT "${COMMON_DIR}/link.ld")
 set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)
 set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -T${LINKER_SCRIPT}")
-set(CMAKE_C_FLAGS "-O0 -march=rv32imc -mabi=ilp32 -static -mcmodel=medany -Wall -g \
+set(CMAKE_C_FLAGS "-O0 -march=rv32imc_zifencei_zicsr -mabi=ilp32 -static -mcmodel=medany -Wall -g \
   -fvisibility=hidden -ffreestanding")
 
 add_subdirectory(pinaipple_lib)

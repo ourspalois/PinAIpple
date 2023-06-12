@@ -51,4 +51,5 @@ sw/build/
 pinaipple_system_pcount.csv
 *.fst
 *.bin
+*.jou
 

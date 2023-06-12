@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+__asm__(".symver realpath,realpath@GLIBC_2.31");
 int main(int argc, char *argv[]) {
   FILE *input, *output;
   unsigned char buffer[4];
