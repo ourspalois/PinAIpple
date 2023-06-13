@@ -37,17 +37,16 @@ char get_char(void){
 int main(void){
   *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on
   
-  
   char string[32] ;
-  uart_out(DEFAULT_UART, 'a') ;
+  putchar('a') ;
 
-  result = *(volatile uint32_t *)(FRAISE_MEM_ARRAY_START) ; 
+  result = 0 ; //*(volatile uint32_t *)(FRAISE_MEM_ARRAY_START) ; 
   convert_uint32_to_bits(result, string) ; 
   int i ; 
-  uart_out(DEFAULT_UART, '|') ; 
+  putchar('|') ; 
   for (i=0;i<32;i++){
-    uart_out(DEFAULT_UART, string[i]) ; 
-    uart_out(DEFAULT_UART, '|') ; 
+    putchar(string[i]) ; 
+    putchar('|') ; 
   }
   
   return 0;
