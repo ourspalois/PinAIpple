@@ -34,20 +34,43 @@ char get_char(void){
   return c ;
 }
 
+uint32_t fraise_read(int addr) {
+  return *((volatile uint32_t*)(FRAISE_BASE + addr)) ;
+}
+
+void print_fraise_content() {
+  uint32_t array[16*2] ; 
+  int line ;
+  int col ;
+  for(col=0;col<4;col++){
+    for(line=0;line<4;line++){
+      array[8*col + 2*line ] = fraise_read(8*col + 2*line) ;
+      array[8*col + 2*line + 1] = fraise_read(8*col + 2*line + 1) ;
+    }
+  }
+  putchar('\n') ;
+  int array_col ;
+  int array_line ;
+  for(array_line=0;array_line<4;array_line++){
+    for(line=0;line<8;line++){
+      for(array_col=0;array_col<4;array_col++){
+        putchar("|") ;
+        for(col=0;col<8;col++){
+          putchar('0') ; 
+          putchar('|') ; 
+        }
+        putchar(' ') ;
+      }
+      putchar('\n') ;
+    }
+    putchar('\n') ;
+  }
+}
+
 int main(void){
   *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on
   
-  char string[32] ;
-  putchar('a') ;
-
-  result = 0 ; //*(volatile uint32_t *)(FRAISE_MEM_ARRAY_START) ; 
-  convert_uint32_to_bits(result, string) ; 
-  int i ; 
-  putchar('|') ; 
-  for (i=0;i<32;i++){
-    putchar(string[i]) ; 
-    putchar('|') ; 
-  }
+  print_fraise_content() ;
   
   return 0;
 }
