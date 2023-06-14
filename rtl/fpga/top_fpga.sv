@@ -34,6 +34,8 @@ module top_fpga #(
         end
     end
 
+    assign gp_o[3] = gp_i[3];
+
     assign clk_i = low_freq_clk; 
     pinaipple_system #(
         .GPIWidth(GPIWidth),
@@ -43,8 +45,8 @@ module top_fpga #(
         .rst_sys_in(~rst_sys_in), // active low reset
         .uart_rx_i(uart_rx),
         .uart_tx_o(uart_tx),
-        .gp_i(gp_i),
-        .gp_o(gp_o),
+        .gp_i({ 1'b0, gp_i[2:0]}),
+        .gp_o({ 1'b0, gp_o[2:0]}),
         //accelerator
         .CBL(CBL0),
         .CBLEN(CBLEN0),
