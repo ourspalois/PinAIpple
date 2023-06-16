@@ -29,6 +29,7 @@ int main(void){
   putchar('\n') ;
 
   asm("fence.i") ; 
+  
   print_fraise_content(0x0) ;
   print_fraise_content(0x1) ;
   print_fraise_content(0x2) ;
@@ -98,9 +99,9 @@ void print_fraise_content(uint32_t array_line) {
         putchar('|') ;
         for(column=0;column<8;column++){
           if(line < 4){
-            putchar(convert_uint32_to_char(array[2*array_col], 8*line + column)) ;
+            putchar(convert_uint32_to_char(array[2*array_col], 8*line + 7 - column)) ;
           } else {
-            putchar(convert_uint32_to_char(array[2*array_col + 1], 8*(line-4) + column)) ;
+            putchar(convert_uint32_to_char(array[2*array_col + 1], 8*(line-4) + 7 - column)) ;
           }
           putchar('|') ; 
         }
