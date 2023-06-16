@@ -26,7 +26,7 @@ module top_fpga #(
 
     int counter = 0 ; 
     always_ff @( posedge(clk) ) begin : CLK_DIVISOR
-        if (counter == 4) begin
+        if (counter == 49) begin
             counter <= 0;
             low_freq_clk <= ~low_freq_clk;
         end else begin

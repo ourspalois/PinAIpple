@@ -3,7 +3,7 @@ import tcdm_interconnect_pkg::topo_e;
 module pinaipple_system #(
     parameter int GPIWidth = 8,
     parameter int GPOWidth = 8,
-    parameter int CLK_FREQ = 12_500_000,
+    parameter int CLK_FREQ = 1_250_000,
     parameter int DATA_WIDTH = 32,
     parameter int ADDR_DEV_WIDTH = 20,
     parameter SRAMInitFile = ""
