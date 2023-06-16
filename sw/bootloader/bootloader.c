@@ -16,7 +16,7 @@ void test_fraise_irq(void){
 }
 
 void convert_uint32_to_bits(uint32_t value, char* string) ;
-void print_fraise_content() ;
+void print_fraise_content(uint32_t array_line) ;
 uint32_t fraise_read(uint32_t addr) ;
 
 int main(void){
@@ -29,8 +29,10 @@ int main(void){
   putchar('\n') ;
 
   asm("fence.i") ; 
-
-  print_fraise_content(1) ;
+  print_fraise_content(0x0) ;
+  print_fraise_content(0x1) ;
+  print_fraise_content(0x2) ;
+  print_fraise_content(0x3) ;
 
   asm("fence.i") ; 
 
@@ -66,26 +68,39 @@ uint32_t fraise_read(uint32_t addr) {
   return *((volatile uint32_t*)(FRAISE_MEM_ARRAY_START + addr*4)) ;
 }
 
-void print_fraise_content(int array_line) {
-  uint32_t array[8]; 
-  uint32_t line = array_line;
-  uint32_t col ;
-  
-  for(col=0;col<4;col++){
-    array[2*col    ] = fraise_read(8*col + 2*line) ;
-    array[2*col + 1] = fraise_read(8*col + 2*line + 1) ;
-  } 
+char convert_uint32_to_char(uint32_t value, int bit_number){
+  if(((value >> bit_number) & 1) == 1) {
+    return '1' ; 
+  } else {
+    return '0' ;
+  }
 
-  putchar('\n') ;
-  int array_col ;
+}
+
+void print_fraise_content(uint32_t array_line) {
+  if(array_line >= 4) {
+    asm("nop") ;
+  } else {
+    uint32_t array[8]; 
+    uint32_t col ;
+    
+    for(col=0;col<4;col++){
+      array[2*col    ] = fraise_read(8*col + 2*array_line) ;
+      array[2*col + 1] = fraise_read(8*col + 2*array_line + 1) ;
+    } 
+
+    putchar('\n') ;
+    int array_col ;
+    int line ;
+    int column ;
     for(line=0;line<8;line++){
       for(array_col=0;array_col<4;array_col++){
         putchar('|') ;
-        for(col=0;col<8;col++){
+        for(column=0;column<8;column++){
           if(line < 4){
-            putchar((array[2 * array_col ] & (1 << (line * 8 + (7-col)))) ? '1' : '0') ; 
+            putchar(convert_uint32_to_char(array[2*array_col], 8*line + column)) ;
           } else {
-            putchar((array[2 * array_col + 1] & (1 << ((line-4) * 8 + (7-col)))) ? '1' : '0') ;
+            putchar(convert_uint32_to_char(array[2*array_col + 1], 8*(line-4) + column)) ;
           }
           putchar('|') ; 
         }
@@ -94,4 +109,5 @@ void print_fraise_content(int array_line) {
       putchar('\n') ;
     }
     putchar('\n') ; 
+  }
 }
