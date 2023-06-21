@@ -20,28 +20,65 @@ void print_fraise_content(uint32_t array_line) ;
 uint32_t fraise_read(uint32_t addr) ;
 char convert_uint32_to_char(uint32_t, int) ;
 
+void print_serial(char* string) {
+  int i ;
+  for(i=0;string[i]!='\0';i++){
+    putchar(string[i]) ;
+  }
+}
+
+void get_serial(char* string){
+  int i ;
+  for(i=0;i<32;i++){
+    string[i] = getchar() ;
+    if(string[i] == '\n'){
+      string[i] = '\0' ;
+      return ;
+    }
+  }
+  string[31] = '\0' ;
+}
+
 int main(void){
-  *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on 
+  uint8_t array[32] = {41,87,89,94,0,0,0,0,127,62,127,132,0,0,0,0,69,239,30,64,0,0,0,0,245,245,70,35,0,0,0,0} ; 
+
+  *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on   
   
-  putchar('t') ;
-  putchar('e') ;
-  putchar('s') ;
-  putchar('t') ;
+  print_serial("Hello World!\n") ;
+  print_serial("This is the bootloader.\n") ;
+  
+  if(*((volatile uint32_t*)GPIO_IN) & 0x1){
+    print_serial("write mode enabled\n") ;
+    print_serial("please change the voltages for SET programming\n") ;
+    print_serial("when ready put SW1 to high\n") ;
+    while(!(*((volatile uint32_t*)GPIO_IN) & 0x2)){} // wait for SW1 to be high
+    print_serial("programming\n") ;
+    fraise_sel_write_inference(Writing) ;
+    fraise_write_set_reset(1) ; 
+    write_line_block(array, 0, 0) ; 
+    print_serial("please put SW1 to low\n") ;
+    while(*((volatile uint32_t*)GPIO_IN) & 0x2){} // wait for SWI to be low
+    print_serial("please change the voltages for RESET programming\n") ;
+    print_serial("when ready put SW1 to high\n") ;
+    while(!(*((volatile uint32_t*)GPIO_IN) & 0x2)){} // wait for SW1 to be high
+    print_serial("programming\n") ;
+    fraise_write_set_reset(0) ; 
+    write_line_block(array, 0, 0) ;
+    fraise_sel_write_inference(Inference) ;
+
+    print_serial("programming done\n") ;
+  } else {
+    print_serial("write mode disabled\n") ;
+    print_serial("test\n") ; 
+
+    print_fraise_content(0x0) ;
+    print_fraise_content(0x1) ;
+    print_fraise_content(0x2) ;
+    print_fraise_content(0x3) ;
+    
+    print_serial("end\n") ; 
+  }
   putchar('\n') ;
-
-  asm("fence.i") ; 
-  
-  print_fraise_content(0x0) ;
-  print_fraise_content(0x1) ;
-  print_fraise_content(0x2) ;
-  print_fraise_content(0x3) ;
-
-  asm("fence.i") ; 
-
-  putchar('e');
-  putchar('n');
-  putchar('d');
-  putchar('\n');
   
   *((volatile uint32_t*)GPIO_OUT) = 0x2 ; // led on 
 
@@ -100,9 +137,9 @@ void print_fraise_content(uint32_t array_line) {
         putchar('|') ;
         for(column=0;column<8;column++){
           if(line < 4){
-            putchar(convert_uint32_to_char(array[2*array_col], 8*line + 8 - column)) ;
+            putchar(convert_uint32_to_char(array[2*array_col], 8*line + 7 - column)) ;
           } else {
-            putchar(convert_uint32_to_char(array[2*array_col + 1], 8*(line-4) + 8 - column)) ;
+            putchar(convert_uint32_to_char(array[2*array_col + 1], 8*(line-4) + 7 - column)) ;
           }
           putchar('|') ; 
         }
