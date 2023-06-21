@@ -40,7 +40,8 @@ void get_serial(char* string){
 }
 
 int main(void){
-  uint8_t array[32] = {41,87,89,94,0,0,0,0,127,62,127,132,0,0,0,0,69,239,30,64,0,0,0,0,245,245,70,35,0,0,0,0} ; 
+  uint8_t array[4] = {0x18, 0x3C, 0x7E, 0xDB} ;
+  uint8_t array_1[4] = {0xFF, 0x3C, 0x7E, 0xA5} ; 
 
   *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on   
   
@@ -48,6 +49,7 @@ int main(void){
   print_serial("This is the bootloader.\n") ;
   
   if(*((volatile uint32_t*)GPIO_IN) & 0x1){
+    
     print_serial("write mode enabled\n") ;
     print_serial("please change the voltages for SET programming\n") ;
     print_serial("when ready put SW1 to high\n") ;
@@ -56,6 +58,7 @@ int main(void){
     fraise_sel_write_inference(Writing) ;
     fraise_write_set_reset(1) ; 
     write_line_block(array, 0, 0) ; 
+    write_line_block(array_1, 0, 1) ;
     print_serial("please put SW1 to low\n") ;
     while(*((volatile uint32_t*)GPIO_IN) & 0x2){} // wait for SWI to be low
     print_serial("please change the voltages for RESET programming\n") ;
@@ -64,22 +67,24 @@ int main(void){
     print_serial("programming\n") ;
     fraise_write_set_reset(0) ; 
     write_line_block(array, 0, 0) ;
+    write_line_block(array_1, 0, 1) ;
     fraise_sel_write_inference(Inference) ;
 
     print_serial("programming done\n") ;
+
   } else {
     print_serial("write mode disabled\n") ;
     print_serial("test\n") ; 
-
+  
     print_fraise_content(0x0) ;
     print_fraise_content(0x1) ;
     print_fraise_content(0x2) ;
     print_fraise_content(0x3) ;
-    
+  
     print_serial("end\n") ; 
   }
   putchar('\n') ;
-  
+
   *((volatile uint32_t*)GPIO_OUT) = 0x2 ; // led on 
 
   return 0;
