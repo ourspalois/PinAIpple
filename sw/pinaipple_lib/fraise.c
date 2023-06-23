@@ -70,5 +70,5 @@ void fraise_write_set_reset(int set_reset){
 }
 
 void write_line_block(uint8_t * values, uint8_t addr_col_array, uint8_t addr_line) {
-  *(volatile uint32_t *)((FRAISE_MEM_ARRAY_START) | ((addr_col_array & 3) << 3) | (addr_line & 5) ) = ~(*(uint32_t*)values) ;
+  *(volatile uint32_t *)((FRAISE_MEM_ARRAY_START) | ((addr_col_array & 3) << 5) | ((addr_line & 7) << 2) ) = ~(*(uint32_t*)values) ;
 }

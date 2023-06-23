@@ -40,8 +40,10 @@ void get_serial(char* string){
 }
 
 int main(void){
-  uint8_t array[4] = {0x18, 0x3C, 0x7E, 0xDB} ;
-  uint8_t array_1[4] = {0xFF, 0x3C, 0x7E, 0xA5} ; 
+  //uint8_t array[4] = {0x18, 0x3C, 0x7E, 0xDB} ;
+  //uint8_t array_1[4] = {0xFF, 0x3C, 0x7E, 0xA5} ; 
+  uint8_t array[4] = {0x01, 0x00, 0x00, 0x00} ;
+  uint8_t array_1[4] = {0x00, 0x00, 0x00, 0x00} ;
 
   *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on   
   
@@ -49,7 +51,6 @@ int main(void){
   print_serial("This is the bootloader.\n") ;
   
   if(*((volatile uint32_t*)GPIO_IN) & 0x1){
-    
     print_serial("write mode enabled\n") ;
     print_serial("please change the voltages for SET programming\n") ;
     print_serial("when ready put SW1 to high\n") ;
@@ -57,8 +58,12 @@ int main(void){
     print_serial("programming\n") ;
     fraise_sel_write_inference(Writing) ;
     fraise_write_set_reset(1) ; 
-    write_line_block(array, 0, 0) ; 
-    write_line_block(array_1, 0, 1) ;
+    uint8_t i, j ;  
+    for(i=0 ; i<8 ;i++){
+      for(j=0 ; j<4 ; j++){
+        write_line_block(array_1, j, i) ;
+      }
+    }
     print_serial("please put SW1 to low\n") ;
     while(*((volatile uint32_t*)GPIO_IN) & 0x2){} // wait for SWI to be low
     print_serial("please change the voltages for RESET programming\n") ;
@@ -66,12 +71,14 @@ int main(void){
     while(!(*((volatile uint32_t*)GPIO_IN) & 0x2)){} // wait for SW1 to be high
     print_serial("programming\n") ;
     fraise_write_set_reset(0) ; 
-    write_line_block(array, 0, 0) ;
-    write_line_block(array_1, 0, 1) ;
+    for(i=0 ; i<8 ;i++){
+      for(j=0 ; j<4 ; j++){
+        write_line_block(array_1, j, i) ;
+      }
+    }
     fraise_sel_write_inference(Inference) ;
 
     print_serial("programming done\n") ;
-
   } else {
     print_serial("write mode disabled\n") ;
     print_serial("test\n") ; 
@@ -82,6 +89,29 @@ int main(void){
     print_fraise_content(0x3) ;
   
     print_serial("end\n") ; 
+  }
+  putchar('\n') ;
+
+  *((volatile uint32_t*)GPIO_OUT) = 0x2 ; // led on 
+
+  uint8_t Observation [4] = {0x06, 0x06, 0x06, 0x06} ;
+  fraise_write_obs(Observation) ; 
+  fraise_irq_enable() ; 
+  bypass_comparator() ; 
+
+  fraise_run() ; 
+  asm("wfi") ; 
+
+  uint32_t res_cpy = result ; 
+  uint8_t hex_letter ; 
+  int i ;
+  for(i=0;i<8;i++){
+    hex_letter = (res_cpy >> (28-4*i)) & 0xf ; 
+    if(hex_letter < 10 ) {
+      putchar(hex_letter + '0') ;
+    } else {
+      putchar(hex_letter - 10 + 'A') ; 
+    }
   }
   putchar('\n') ;
 
