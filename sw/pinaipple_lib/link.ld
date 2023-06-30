@@ -7,8 +7,8 @@ OUTPUT_ARCH(riscv)
 MEMORY
 {
     rom (rx)    : ORIGIN = 0x00100000, LENGTH = 0x4000 /* 16 KiB */
-    ram (rwx)   : ORIGIN = 0x00200000, LENGTH = 0xE000 /* 56 KiB */
-    stack       : ORIGIN = 0x0020E000 , LENGTH = 0x2000  /* 4 KiB */
+    ram (rwx)   : ORIGIN = 0x00200000, LENGTH = 0x1c000 /* 114 KiB */
+    stack       : ORIGIN = 0x0021c000 , LENGTH = 0x4000  /* 8 KiB */
 }
 
 /* Stack information variables */

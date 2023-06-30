@@ -35,6 +35,8 @@ module top_fpga #(
     end
 
     assign gp_o[3] = gp_i[3];
+    logic uart_tx_1 ; 
+    assign uart_tx = ~uart_tx_1 ;
 
     assign clk_i = low_freq_clk; 
     pinaipple_system #(
@@ -44,7 +46,7 @@ module top_fpga #(
         .clk_sys_in(low_freq_clk),
         .rst_sys_in(~rst_sys_in), // active low reset
         .uart_rx_i(uart_rx),
-        .uart_tx_o(uart_tx),
+        .uart_tx_o(uart_tx_1),
         .gp_i({ 1'b0, gp_i[2:0]}),
         .gp_o({ 1'b0, gp_o[2:0]}),
         //accelerator

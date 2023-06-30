@@ -38,7 +38,7 @@ module pinaipple_system #(
   localparam logic [31:0] INSTR_MEMSTART = 32'h00100000;
   localparam logic [31:0] INSTR_MEMMASK = ~(INSTR_MEMSIZE - 1);
 
-  localparam logic [31:0] DATA_MEMSIZE = 64 * 1024;  // 64 KiB
+  localparam logic [31:0] DATA_MEMSIZE = 128 * 1024;  // 64 KiB
   localparam logic [31:0] DATA_MEMSTART = 32'h00200000;
   localparam logic [31:0] DATA_MEMMASK = ~(DATA_MEMSIZE - 1);
 
@@ -142,7 +142,7 @@ module pinaipple_system #(
     // switch staement to select the target   
     if(ibex_data_addr_out <= (SIMCTRLSTART + SIMCTRLSIZE)) begin // true if in adress space
       ibex_tgt_addr_out = SimCtrl;
-    end else if(ibex_data_addr_out <= (INSTR_MEMSTART + INSTR_MEMSIZE)) begin
+    end else if(ibex_data_addr_out <= (INSTR_MEMSTART + INSTR_MEMSIZE) ) begin //&& (ibex_data_addr_out >= INSTR_MEMSTART) ) begin
       if(Host_we[CoreD] == 0) begin
         ibex_tgt_addr_out = Rom;
       end else begin
@@ -151,15 +151,15 @@ module pinaipple_system #(
           $display("Error : CoreD is trying to write ROM") ;
         `endif 
       end
-    end else if(ibex_data_addr_out <= (DATA_MEMSTART + DATA_MEMSIZE)) begin
+    end else if(ibex_data_addr_out <= (DATA_MEMSTART + DATA_MEMSIZE) ) begin //&& (ibex_data_addr_out >= DATA_MEMSTART) ) begin
       ibex_tgt_addr_out = Ram;
-    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE)) begin
+    end else if(ibex_data_addr_out <= (FRAISESTART + FRAISESIZE) ) begin //&& (ibex_data_addr_out >= FRAISESTART) ) begin
       ibex_tgt_addr_out = Fraise_Device;   
-    end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE)) begin
+    end else if(ibex_data_addr_out <= (GPIOSTART + GPIOSIZE) ) begin //&& (ibex_data_addr_out >= GPIOSTART) ) begin
       ibex_tgt_addr_out = Gpio;
-    end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE)) begin
+    end else if(ibex_data_addr_out <= (UARTSTART + UARTSIZE) ) begin //&& (ibex_data_addr_out >= UARTSTART) ) begin
       ibex_tgt_addr_out = Uart;
-    end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE)) begin
+    end else if(ibex_data_addr_out <= (TIMERSTART + TIMERSIZE) ) begin// && (ibex_data_addr_out >= TIMERSTART) ) begin
       ibex_tgt_addr_out = Timer;  
     end else begin
       ibex_tgt_addr_out = error;
