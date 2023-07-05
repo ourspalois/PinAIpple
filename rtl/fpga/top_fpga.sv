@@ -55,7 +55,6 @@ module top_fpga #(
         .CSL(CSL0),
         .CWL(CWL0), 
         .instructions(instructions_in),
-
         .addr_col(adr_full_col_in), 
         .addr_row(adr_full_row_in),
         .bit_out(DATA_out)

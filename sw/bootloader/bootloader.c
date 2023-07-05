@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "fraise.h"
 
+
 /*
  * Interupt function for the accelerator
 */
@@ -19,6 +20,8 @@ void convert_uint32_to_bits(uint32_t value, char* string) ;
 void print_fraise_content(uint32_t array_line) ;
 uint32_t fraise_read(uint32_t addr) ;
 char convert_uint32_to_char(uint32_t, int) ;
+
+void fraise_form(void) ; 
 
 void print_serial(char* string) {
   int i ;
@@ -42,13 +45,15 @@ void get_serial(char* string){
 /*
  * this is a software timer, it has terrible precision dont use it.
 */
-uint32_t sleep(uint32_t time_ms){
+uint32_t __attribute__((optimize("O0"))) sleep(uint32_t time_ms){
   uint32_t count_to = (uint32_t)(time_ms * 100 ) ;
   uint32_t i ;
   uint32_t sum = 0 ;
+  #ifndef SIMULATION_EN
   for(i = 0 ; i < count_to ; i++){
     sum += 1 ;
   }
+  #endif
   return sum ;
 }
 
@@ -100,65 +105,108 @@ void print_serial_dec(uint32_t value){
 int main(void){
   *((volatile uint32_t*)GPIO_OUT) = 0x1 ; // led on
   
-  uint8_t array[4] = {0x01, 0x00, 0x00, 0x00} ;
+  uint8_t array[4] = {0x00, 0x00, 0x00, 0x00} ;
+  uint8_t array_comp[4] = {0x7E, 0xBD, 0xDB, 0xE7} ;
   uint8_t array_1[128] ;
   int i, j ;
-  for(i=0 ; i<8*16 ; i++){
-    array_1[i] = 0x00 ;
-  }
+  int interations ; 
   
   print_serial("This is the bootloader.\n") ;
   print_serial("Start measure\n") ;
+
+  
+  if(*((volatile uint32_t*)GPIO_IN) & 0x4){
+    print_serial("Forming Enabled\n") ;
+    fraise_form() ; 
+    fraise_form() ; // 800 ns per call of forming function
+    fraise_form() ;
+    fraise_form() ;
+    fraise_form() ;
+  }
+  
 
   if(*((volatile uint32_t*)GPIO_IN) & 0x1){
     print_serial("Programming Enabled\n") ;
     print_serial("SET\n") ;
     sleep(10000) ; 
     fraise_sel_write_inference(Writing) ;
-    fraise_write_set_reset(1) ;  
-    for(i=0 ; i<8 ;i++){
-      for(j=0 ; j<4 ; j++){
-        write_line_block(array_1, j, i) ;
+    fraise_write_set_reset(1) ; 
+      for(i=0;i<8;i++){
+        for(j=0;j<4;j++){
+          write_line_block(array,0,0) ; 
+        }
       }
-    }
+    
     print_serial("RESET\n") ;
     sleep(10000) ;
     fraise_write_set_reset(0) ;
-    for(i=0 ; i<8 ;i++){
-      for(j=0 ; j<4 ; j++){
-        write_line_block(array_1, j, i) ;
+      for(i=0;i<8;i++){
+        for(j=0;j<4;j++){
+          write_line_block(array,0,0) ; 
+        }
       }
-    }
+    
     fraise_sel_write_inference(Inference) ;
     print_serial("finish programming\n") ;
-    
+    print_serial("READ\n") ;
+    sleep(5000) ;
   }
-  *((volatile uint32_t*)GPIO_OUT) = 0x2 ; // led on
-  uint32_t vdd ;
-
+  
+  fraise_sel_write_inference(Inference) ;
   print_serial("READ\n") ;
-  sleep(10000) ;
-  print_serial("start\n") ;
-  for(i=0;i<128;i++){
-    array_1[i] = (uint8_t)((fraise_read(i/4) >> (8*(i%4))) && 0xFF) ;
-  }
-  print_serial("end") ; 
+  sleep(5000) ;
+  print_fraise_content(0) ;
+  print_fraise_content(1) ;
+  print_fraise_content(2) ;
+  print_fraise_content(3) ;
 
-  for(vdd = 1200 ; vdd > 100 ; vdd -= 100){
+  *((volatile uint32_t*)GPIO_OUT) = 0x2 ; // led on
+  
+  uint32_t vdd ;
+    
+  print_serial("READ\n") ;
+  sleep(5000) ;
+  uint32_t read_32 ;
+  for(i=0;i<32;i++){
+    read_32 = fraise_read(i) ;
+    array_1[4*i] = read_32 & 0xff;
+    array_1[4*i+1] = (read_32 >> 8) & 0xff ;
+    array_1[4*i+2] = (read_32 >> 16) & 0xff ;
+    array_1[4*i+3] = (read_32 >> 24) & 0xff ;
+  }
+  
+  uint8_t Observation [4] = {0x00, 0x00, 0x00, 0x00} ;
+  uint32_t th_result = 0 ; 
+  for(i=0 ; i < 4 ; i++){
+    th_result = (th_result << 8) | array_1[8*i + Observation[i]] + array_1[8*(i+4) + Observation[i]] + array_1[8*(i+8) + Observation[i]] + array_1[8*(i+12) + Observation[i]] ;
+  }
+
+  set_global_interrupt_enable(1);
+  fraise_irq_enable() ; 
+  bypass_comparator() ;
+  
+  print_serial("READ\n") ;
+  sleep(5000) ; 
+  fraise_write_obs(Observation) ; 
+  fraise_run() ; 
+  asm("wfi") ; 
+  print_serial("test run  obs zero : ") ; 
+  print_serial_hex(result) ; 
+  putchar('\n') ;
+  print_serial("th result : ") ; 
+  print_serial_hex(th_result) ;
+  putchar('\n') ; 
+  
+ 
+  for(vdd = 1200 ; vdd > 600 ; vdd -= 100){
     print_serial("READ vdd :") ;
     print_serial_dec(vdd) ;
     putchar(':') ;
     putchar('\n') ;
     sleep(1000) ; 
     uint32_t error_number = 0 ; 
-    uint8_t Observation [4] ;
     uint8_t obs_0, obs_1, obs_2, obs_3 ;
-    obs_2 = 0 ;
-    obs_3 = 0 ;
-
-    set_global_interrupt_enable(1);
-    fraise_irq_enable() ; 
-    bypass_comparator() ;
+    
     uint32_t nbr_of_points = 0 ;
     for(obs_0=0;obs_0<8;obs_0++){
       for(obs_1=0;obs_1<8;obs_1++){
@@ -191,8 +239,10 @@ int main(void){
     putchar(':') ;
     putchar('\n') ;
   }
+  
   print_serial("DONE\n"); 
-  *((volatile uint32_t*)GPIO_OUT) = 0x4 ; // led on
+  //*((volatile uint32_t*)GPIO_OUT) = 0x4 ; // led on
+  
   return 0;
 }
 
@@ -260,4 +310,27 @@ void print_fraise_content(uint32_t array_line) {
     }
     putchar('\n') ; 
   }
+}
+
+void fraise_form(){
+  uint8_t array_form_0[4] = {0x00, 0x00, 0x00, 0x00} ;
+  uint8_t array_form_1[4] = {0xff, 0xff, 0xff, 0xff} ;
+  print_serial("FORM\n") ;
+  sleep(5000) ;
+  fraise_sel_write_inference(Writing) ;
+  fraise_write_set_reset(1) ; 
+  int i ;
+  int j ; 
+  for(i=0;i<8;i++){
+    for(j=0;j<4;j++){
+      write_line_block(array_form_0, j, i) ; 
+    }
+  }
+  for(i=0;i<8;i++){
+    for(j=0;j<4;j++){
+      write_line_block(array_form_1, j, i) ; 
+    }
+  }
+  fraise_sel_write_inference(Inference) ;
+
 }

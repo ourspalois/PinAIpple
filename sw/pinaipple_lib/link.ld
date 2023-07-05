@@ -6,13 +6,13 @@ OUTPUT_ARCH(riscv)
 
 MEMORY
 {
-    rom (rx)    : ORIGIN = 0x00100000, LENGTH = 0x4000 /* 16 KiB */
+    rom (rx)    : ORIGIN = 0x00100000, LENGTH = 0x8000 /* 32 KiB */
     ram (rwx)   : ORIGIN = 0x00200000, LENGTH = 0x1c000 /* 114 KiB */
-    stack       : ORIGIN = 0x0021c000 , LENGTH = 0x4000  /* 8 KiB */
+    stack       : ORIGIN = 0x0021c000 , LENGTH = 0x4000  /* 16 KiB */
 }
 
 /* Stack information variables */
-_min_stack      = 0x1000;   /* 4K - minimum stack space to reserve */
+_min_stack      = 0x4000;   /* 16K - minimum stack space to reserve */
 _stack_len     = LENGTH(stack);
 _stack_start   = ORIGIN(stack) + LENGTH(stack);
 
