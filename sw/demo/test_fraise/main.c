@@ -11,7 +11,7 @@ volatile int result ;
 volatile int res_valid ; 
 
 void test_fraise_irq(void){
-  result = fraise_get_result() ;
+  result = fraise_get_result_stoch() ;
   res_valid = 1 ;
 }
 

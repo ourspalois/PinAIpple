@@ -42,7 +42,7 @@ module pinaipple_system #(
   localparam logic [31:0] DATA_MEMSTART = 32'h00200000;
   localparam logic [31:0] DATA_MEMMASK = ~(DATA_MEMSIZE - 1);
 
-  localparam logic [31:0] FRAISESIZE = 4 * 1024 ; //array + registers for control and results
+  localparam logic [31:0] FRAISESIZE = 32 * 1024 ; //array + registers for control and results
   localparam logic [31:0] FRAISESTART = 32'h70000000;
   localparam logic [31:0] FRAISEMASK = ~(FRAISESIZE - 1);
 
@@ -439,7 +439,7 @@ module pinaipple_system #(
     .DataWidth(32),
     .AddrWidth(32),
     .MatrixSize(4),
-    .ArraySize(8),
+    .ArraySize(64),
     .Nword_used(3),
     .NbrHostsLog2(NbrHostsLog2)
   ) u_fraise_accel (
