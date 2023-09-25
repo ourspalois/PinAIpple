@@ -79,10 +79,17 @@ void print_serial_dec_32(uint32_t value){
 }
 
 int main(void){
-  //fraise_turn_on_off(1);
+  
+  *((volatile uint32_t*)GPIO_OUT) = 0x1 ;
+  putchar(' ') ; 
+  putchar('t') ; 
+  putchar('e') ; 
+  putchar('s') ; 
+  putchar('t') ; 
+  
+  
   // programming this pattern (the first line of the first array line : 64 bits x 4)
-  uint8_t pattern[512][16] = {
-{141, 111, 222, 226, 103, 8, 136, 19, 226, 57, 175, 24, 63, 232, 150, 188},
+  uint8_t pattern[512][16] = {{141, 111, 222, 226, 103, 8, 136, 19, 226, 57, 175, 24, 63, 232, 150, 188},
 {235, 43, 227, 225, 99, 145, 211, 63, 141, 129, 44, 184, 28, 131, 69, 104},
 {142, 109, 225, 223, 114, 54, 120, 52, 245, 225, 89, 20, 77, 208, 108, 69},
 {237, 31, 30, 215, 241, 119, 207, 249, 121, 76, 69, 44, 65, 91, 36, 118},
@@ -593,59 +600,27 @@ int main(void){
 {213, 181, 75, 211, 36, 131, 25, 244, 127, 139, 56, 83, 237, 148, 92, 31},
 {54, 12, 172, 58, 222, 212, 2, 143, 23, 172, 147, 47, 91, 211, 38, 181},
 {75, 122, 155, 93, 87, 93, 233, 255, 149, 158, 199, 248, 249, 73, 42, 33},
-{185, 173, 244, 9, 19, 129, 254, 41, 66, 209, 121, 163, 189, 6, 91, 169}
-};
-  uint8_t ad_col, ad_row, side, line, adress_row;
-  uint8_t value1, value2, value3, value4;
-  value1 = 0;
-  value2 = 12;
-  value3 = 24;
-  value4 = 34;
-  //for (ad_col=0; ad_col<4; ad_col++){
-    ad_col = 0;
-    ad_row = 0;
-    line = 0;
-    adress_row = 0;//((ad_row&3)<<6)|(line & 63);
-    side = 0;
-    programming_function(value1, value2, value3, value4, ad_col, adress_row, side);
-    //for (side = 0; side<2; side++) {
-      //programming_function(pattern[0+line*64+side*4][ad_col+4*ad_row], pattern[1+line*64+side*4][ad_col+4*ad_row], pattern[2+line*64+side*4][ad_col+4*ad_row], pattern[3+line*64+side*4][ad_col+4*ad_row], ad_col, adress_row, side);
-    //}
-  //} 
+{185, 173, 244, 9, 19, 129, 254, 41, 66, 209, 121, 163, 189, 6, 91, 169}};
+  uint32_t col, line ; 
 
-  
-  uint32_t result_read;
-  result_read = reading_function(ad_col, adress_row, side);
-  putchar('\n') ;
-  print_line(0) ; 
-  //print_array() ; 
-  uint8_t obs_zero[4] = {0, 0, 0, 0};
-  uint32_t result = inference_function(obs_zero[0], obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0], 1) ;
-
-  print_serial_dec_32(result) ;
-
-  // reading a line
-  /*
-  uint32_t result_read[2][16];
-  for (ad_col=0; ad_col<4; ad_col++){
-    for (ad_row=0; ad_row<1; ad_row++){
-      result_read[0][ad_col] = reading_function(ad_col, ad_row, 0);
-      result_read[1][ad_col] = reading_function(ad_col, ad_row, 1); 
-    }   
-
-  }*/
-  /*
-  // inference
-  uint32_t result_inf;
-  uint8_t obs_col[4] = {0, 0, 0, 0};
-  uint8_t obs_row[4] = {0, 0, 0, 0}; 
-
-  int choice = 1;
-  for(choice=1;choice<=3 ; choice++){
-    result_inf = inference_function(obs_col[0], obs_col[1], obs_col[2], obs_col[3], obs_row[0], obs_row[1], obs_row[2], obs_row[3], choice);
+  for(line = 0 ; line <= 512 ; line ++){
+    for(col = 0 ; col < 4 ; col ++){
+      programming_function(pattern[line][col * 4], pattern[line][col * 4 + 1], pattern[line][col * 4 + 2], pattern[line][col * 4 + 3], col , line, 0) ;
+      programming_function(0,0,0,0, col, line, 1) ; // MSB to 0
+    }
   }
 
-  */
+  *((volatile uint32_t*)GPIO_OUT) = 0x2 ;
+  putchar('\n') ;
+  
+  print_array() ; 
+
+  //inference
+  uint8_t obs_zero[4] = {0, 0, 0, 0};
+  uint32_t result = inference_function(obs_zero[0], obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0], 1) ;
+  putchar('\n') ;
+  print_serial_dec_32(result) ;
+    
   return 0 ;
 }
 
@@ -687,11 +662,13 @@ void print_line(uint32_t line_addr){
 
 void print_array(){
   int i ; 
+  print_serial("start\n\0") ; 
   for(i=0;i<512;i++){
     if(i % 64 == 0){
-      putchar(' \n') ; 
+      putchar('\n') ; 
     }
     print_line(i) ;
     
   }
+  print_serial("end\n\0") ; 
 }

@@ -43,7 +43,7 @@ ifneq ($(wildcard ./sw/build/),)
 endif 
 	@echo "Compiling application"
 	@mkdir sw/build
-	@cd sw/build ;cmake -D SIM_CTRL_OUTPUT=ON ../ ; make ; make ; make
+	@cd sw/build ;cmake ../ ; make ; make ; make
 	@echo "Memory utilization of bootloader:"
 	$(SIZE) $(APP_ELF)/bootloader/bootloader
 	@echo "Memory utilization of application:"

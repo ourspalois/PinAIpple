@@ -7,7 +7,7 @@ set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports {rst_sys_in}
 
 ## uart
 set_property -dict {PACKAGE_PIN V8 IOSTANDARD LVCMOS33} [get_ports {uart_rx}]
-set_property -dict {PACKAGE_PIN N16 IOSTANDARD LVCMOS33} [get_ports {uart_tx}]
+set_property -dict {PACKAGE_PIN Y7 IOSTANDARD LVCMOS33} [get_ports {uart_tx}]
 
 #gp_i 
 set_property -dict {PACKAGE_PIN G15 IOSTANDARD LVCMOS33} [get_ports {gp_i[0]}]
@@ -26,19 +26,19 @@ set_property -dict {PACKAGE_PIN D18 IOSTANDARD LVCMOS33} [get_ports {gp_o[3]}]
 #-----------------------------------------------------------------------------
 
 ## clk
-set_property -dict {PACKAGE_PIN K14 IOSTANDARD LVCMOS33} [get_ports {clk_i}]
+set_property -dict {PACKAGE_PIN V7 IOSTANDARD LVCMOS33} [get_ports {clk_i}]
 
 ## CBL
-set_property -dict {PACKAGE_PIN K16 IOSTANDARD LVCMOS33} [get_ports {CBL0}]
+set_property -dict {PACKAGE_PIN U7 IOSTANDARD LVCMOS33} [get_ports {CBL0}]
 
 ## CBLEN
-set_property -dict {PACKAGE_PIN L14 IOSTANDARD LVCMOS33} [get_ports {CBLEN0}]
+set_property -dict {PACKAGE_PIN W8 IOSTANDARD LVCMOS33} [get_ports {CBLEN0}]
 
 ## CSL
-set_property -dict {PACKAGE_PIN J14 IOSTANDARD LVCMOS33} [get_ports {CSL0}]
+set_property -dict {PACKAGE_PIN W6 IOSTANDARD LVCMOS33} [get_ports {CSL0}]
 
 ## CWL
-set_property -dict {PACKAGE_PIN L15 IOSTANDARD LVCMOS33} [get_ports {CWL0}]
+set_property -dict {PACKAGE_PIN Y6 IOSTANDARD LVCMOS33} [get_ports {CWL0}]
 
 ## inference 
 set_property -dict {PACKAGE_PIN V6 IOSTANDARD LVCMOS33} [get_ports {inference}]
