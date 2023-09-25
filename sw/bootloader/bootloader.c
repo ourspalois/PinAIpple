@@ -7,6 +7,8 @@
  * Interupt function for the accelerator
 */
 void test_fraise_irq(void) __attribute__((interrupt)) ;
+void print_line(uint32_t line_addr) ;
+void print_array(void) ; 
 uint32_t fraise_read(uint32_t addr) ;
 void programming_function(uint8_t values1, uint8_t values2, uint8_t values3, uint8_t values4, uint8_t addr_col, uint8_t addr_row, uint8_t side);
 uint32_t inference_function(uint8_t observations_col1, uint8_t observations_col2, uint8_t observations_col3, uint8_t observations_col4, uint8_t observations_row1, uint8_t observations_row2, uint8_t observations_row3, uint8_t observations_row4, int inf_choice);
@@ -23,6 +25,13 @@ void test_fraise_irq(void){
   res_valid = 1 ;
 }
 
+void print_serial(char* string) {
+  int i ;
+  for(i=0;string[i]!='\0';i++){
+    putchar(string[i]) ;
+  }
+}
+
 void programming_function(uint8_t values1, uint8_t values2, uint8_t values3, uint8_t values4, uint8_t addr_col, uint8_t addr_row, uint8_t side) {
   fraise_prog((uint32_t) 1 );
   uint32_t values = ((uint32_t)values1<<24) | ((uint32_t)values2<<16) | ((uint32_t)values3<<8) | (uint32_t)values4;
@@ -31,8 +40,6 @@ void programming_function(uint8_t values1, uint8_t values2, uint8_t values3, uin
   //fraise_write_set_reset(0);
   //write_line_block(values, addr_col, addr_row, side);
 }
-
-
 
 
 uint32_t inference_function(uint8_t observations_col1, uint8_t observations_col2, uint8_t observations_col3, uint8_t observations_col4, uint8_t observations_row1, uint8_t observations_row2, uint8_t observations_row3, uint8_t observations_row4, int inf_choice){
@@ -56,6 +63,19 @@ uint32_t reading_function(uint8_t array_col, uint8_t observations_row, uint8_t s
   uint32_t addr;
   addr = (uint32_t)((((uint32_t) (array_col & 3)) << 3) | (((uint32_t) (observations_row & 255)) << 5) | ((uint32_t) (side & 1)<<2));
   return fraise_read(addr);
+}
+
+void print_serial_dec_32(uint32_t value){
+  int i ;
+  uint32_t valeur = value ;
+  char string [4] ; 
+  for(i=0;i<4;i++){
+    string[i] = (valeur % 10) + '0' ;
+    valeur /= 10 ;
+  }
+  for(i=3;i>=0;i--){
+    putchar(string[i]) ;
+  }
 }
 
 int main(void){
@@ -596,6 +616,14 @@ int main(void){
   
   uint32_t result_read;
   result_read = reading_function(ad_col, adress_row, side);
+  putchar('\n') ;
+  print_line(0) ; 
+  //print_array() ; 
+  uint8_t obs_zero[4] = {0, 0, 0, 0};
+  uint32_t result = inference_function(obs_zero[0], obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0],obs_zero[0], 1) ;
+
+  print_serial_dec_32(result) ;
+
   // reading a line
   /*
   uint32_t result_read[2][16];
@@ -606,18 +634,64 @@ int main(void){
     }   
 
   }*/
-
+  /*
   // inference
   uint32_t result_inf;
   uint8_t obs_col[4] = {0, 0, 0, 0};
   uint8_t obs_row[4] = {0, 0, 0, 0}; 
 
   int choice = 1;
-  result_inf = inference_function(obs_col[0], obs_col[1], obs_col[2], obs_col[3], obs_row[0], obs_row[1], obs_row[2], obs_row[3], choice);
+  for(choice=1;choice<=3 ; choice++){
+    result_inf = inference_function(obs_col[0], obs_col[1], obs_col[2], obs_col[3], obs_row[0], obs_row[1], obs_row[2], obs_row[3], choice);
+  }
 
-  choice = 0;
-  result_inf = inference_function(obs_col[0], obs_col[1], obs_col[2], obs_col[3], obs_row[0], obs_row[1], obs_row[2], obs_row[3], choice);
+  */
+  return 0 ;
+}
 
-  choice = 2;
-  result_inf = inference_function(obs_col[0], obs_col[1], obs_col[2], obs_col[3], obs_row[0], obs_row[1], obs_row[2], obs_row[3], choice);
+void print_serial_dec(uint8_t value){
+  int i ;
+  uint8_t valeur = value ;
+  char string [4] ; 
+  for(i=0;i<4;i++){
+    string[i] = (valeur % 10) + '0' ;
+    valeur /= 10 ;
+  }
+  for(i=3;i>=0;i--){
+    putchar(string[i]) ;
+  }
+}
+
+
+void print_line(uint32_t line_addr){
+  uint32_t values_read[8] ;
+  uint8_t increment ; 
+  for(increment=0;increment<8;increment++){
+    values_read[increment] = reading_function(increment >> 1, (uint8_t) line_addr,(increment + 1)%2) ;
+  }
+
+  for(increment=0;increment<8;increment++){
+    int sub_incr ; 
+    if(increment%2 == 0){
+      putchar(' ') ; 
+      putchar('|') ; 
+    }
+    for(sub_incr=3;sub_incr>=0;sub_incr--){
+      print_serial_dec(values_read[increment] >> (sub_incr * 8)) ; 
+      putchar('|') ; 
+    }
+  }
+  putchar(' ') ; 
+  putchar('\n') ;
+}
+
+void print_array(){
+  int i ; 
+  for(i=0;i<512;i++){
+    if(i % 64 == 0){
+      putchar(' \n') ; 
+    }
+    print_line(i) ;
+    
+  }
 }

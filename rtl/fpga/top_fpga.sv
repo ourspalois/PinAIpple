@@ -12,12 +12,10 @@ module top_fpga #(
     output logic clk_i, 
     //output logic io_out, 
     //output logic io_in, 
-	output logic CBL0, CBLEN0, CSL0, CWL0,
-	output logic [1:0] instructions_in,		// // "11" form and prog, "10" read_mem, "01" read_reg, "00" inference
-	output logic [5-1:0] adr_full_col_in,		//adr for array_col + mem_col  
-	output logic [5-1:0] adr_full_row_in,		//adr for array_row + mem_row
-	//output logic [2**Nword-1:0] DATA_out [2**Narray-1:0] 		//data out
-	input logic DATA_out [2**2-1:0]
+	output logic CBL0, CBLEN0, CSL0, CWL0, inference, read_8, load_mem, read_out, stoch_log,
+	output logic [7:0] adr_full_col_in,		//adr for array_col + mem_col  
+	output logic [7:0] adr_full_row_in,		//adr for array_row + mem_row
+	input logic DATA_out [3:0]
 );
 
     //assign io_out = '0;
@@ -54,7 +52,11 @@ module top_fpga #(
         .CBLEN(CBLEN0),
         .CSL(CSL0),
         .CWL(CWL0), 
-        .instructions(instructions_in),
+        .inference(inference), 
+        .read_8(read_8), 
+        .load_mem(load_mem),
+        .read_out(read_out),
+        .stoch_log(stoch_log),
         .addr_col(adr_full_col_in), 
         .addr_row(adr_full_row_in),
         .bit_out(DATA_out)

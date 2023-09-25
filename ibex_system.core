@@ -76,8 +76,8 @@ targets:
     toplevel: top_fpga
     tools:
       vivado:
-        part: xc7z010clg400-1
-        jobs: 8
+        part: xc7z020clg400-1
+        jobs: 24
 
   sim:
     <<: *default_target

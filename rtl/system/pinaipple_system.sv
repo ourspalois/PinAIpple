@@ -21,13 +21,15 @@ module pinaipple_system #(
     output logic CBLEN,
     output logic CSL,
     output logic CWL,
-    output logic [1:0] instructions,
-    output logic [4:0] addr_col,
-    output logic [4:0] addr_row,
+    output logic inference, 
+    output logic read_8, 
+    output logic load_mem, 
+    output logic read_out, 
+    output logic stoch_log, 
+    output logic [7:0] addr_col,
+    output logic [7:0] addr_row,
     input logic bit_out [3:0] 
-
     `endif 
-
 );
 
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
@@ -476,10 +478,16 @@ module pinaipple_system #(
     .CBLEN(CBLEN),
     .CSL(CSL),
     .CWL(CWL),
-    .instructions(instructions),
-    .addr_col(addr_col),
-    .addr_row(addr_row),
-    .bit_out_top(bit_out)
+    .inference(inference), 
+    .load_seed(), 
+    .read_1(read_1),
+    .load_mem(load_mem), 
+    .read_out(read_out), 
+    .stoch_log(stoch_log), 
+    .seeds(), 
+    .addr_col(addr_col), 
+    .addr_row(addr_row), 
+    .bit_out(bit_out) 
     `endif 
     
     ) ; 
