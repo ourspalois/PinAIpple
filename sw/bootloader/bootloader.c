@@ -201,11 +201,7 @@ int main(void){
   print_serial("START_ARRAY\n") ;
   print_array() ; 
   print_serial("END_ARRAY\n") ;
-
-  int choice = 1;
-  uint32_t result_inf = inference_function(0,0,0,0,0,0,0,0, choice);
-  print_serial_dec_32(result_inf) ; 
-
+  
   *((volatile uint32_t*)GPIO_OUT) = 0x2 ;
   
   print_serial("END\n") ; 
