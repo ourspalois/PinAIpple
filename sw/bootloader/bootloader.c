@@ -101,7 +101,7 @@ int main(void){
   putchar('\n') ;
 
   print_serial("SUPPLY_FORM\n");
-  sleep(1000) ; 
+  sleep(5000) ; 
   uint32_t line_form ; 
   for(line_form = 0 ; line_form < 64 ; line_form ++){
     programming_function(0,0,0,0, 0, line_form, 0, 1) ;
@@ -113,7 +113,7 @@ int main(void){
   } 
   
   uint8_t pattern[64][8] = {
-    {0,0,0,0,0,0,0,0,},
+    {255,0,0,0,0,0,0,0,},
     {0,0,0,0,0,0,0,0,},
     {0,0,0,0,0,0,0,0,},
     {0,0,0,0,0,0,0,0,},
@@ -181,14 +181,14 @@ int main(void){
   
   uint32_t line ; 
   print_serial("SUPPLY_SET\n") ; 
-  sleep(1000) ; 
+  sleep(5000) ; 
   for(line = 0 ; line < 64 ; line ++){
     programming_function(pattern[line][0], pattern[line][1], pattern[line][2], pattern[line][3], 0, line, 0, 1) ;
     programming_function(pattern[line][4], pattern[line][5], pattern[line][6], pattern[line][7], 0, line, 1, 1) ;
   } 
   
   print_serial("SUPPLY_RESET\n") ; 
-  sleep(1000) ;
+  sleep(5000) ;
   for(line = 0 ; line < 64 ; line ++){
     programming_function(pattern[line][0], pattern[line][1], pattern[line][2], pattern[line][3], 0, line, 0, 0) ;
     programming_function(pattern[line][4], pattern[line][5], pattern[line][6], pattern[line][7], 0, line, 1, 0) ;
@@ -196,12 +196,16 @@ int main(void){
   
   
   print_serial("SUPPLY_READ\n") ; 
-  sleep(1000) ;
+  sleep(5000) ;
   putchar('\n') ;
   print_serial("START_ARRAY\n") ;
   print_array() ; 
   print_serial("END_ARRAY\n") ;
-  
+
+  int choice = 1;
+  uint32_t result_inf = inference_function(0,0,0,0,0,0,0,0, choice);
+  print_serial_dec_32(result_inf) ; 
+
   *((volatile uint32_t*)GPIO_OUT) = 0x2 ;
   
   print_serial("END\n") ; 

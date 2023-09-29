@@ -50,8 +50,8 @@ module top_fpga #(
         //accelerator
         .CBL(CBL0),
         .CBLEN(CBLEN0),
-        .CSL(CSL0),
-        .CWL(CWL0), 
+        .SL_signal(CSL0),
+        .WL_signal(CWL0), 
         .inference(inference), 
         .read_8(read_8), 
         .load_mem(load_mem),

@@ -14,13 +14,11 @@ module pinaipple_system #(
     input logic [GPIWidth-1:0] gp_i,
     output logic [GPOWidth-1:0] gp_o,
     input logic uart_rx_i,
-    output logic uart_tx_o
-
-    `ifndef VERILATOR
-    , output logic CBL,
+    output logic uart_tx_o, 
+    output logic CBL,
     output logic CBLEN,
-    output logic CSL,
-    output logic CWL,
+    output logic SL_signal,
+    output logic WL_signal,
     output logic inference, 
     output logic read_8, 
     output logic load_mem, 
@@ -29,7 +27,6 @@ module pinaipple_system #(
     output logic [7:0] addr_col,
     output logic [7:0] addr_row,
     input logic bit_out [3:0] 
-    `endif 
 );
 
   parameter logic [31:0] SIMCTRLSIZE  = 1 * 1024; // 1kB
@@ -476,11 +473,11 @@ module pinaipple_system #(
     `ifndef VERILATOR
     ,.CBL(CBL),
     .CBLEN(CBLEN),
-    .CSL(CSL),
-    .CWL(CWL),
+    .SL_signal(SL_signal),
+    .WL_signal(WL_signal),
     .inference(inference), 
     .load_seed(), 
-    .read_1(read_1),
+    .read_8(read_8),
     .load_mem(load_mem), 
     .read_out(read_out), 
     .stoch_log(stoch_log), 
